@@ -20,18 +20,14 @@ class SubscribePropertiesSerializationTest {
     @Test
     fun webPushSerializesChannelAndOmitsNullFields() {
         val json = toJson(
-            SubscribeProperties.WebPush(
+            SubscribeProperties.AppPush(
                 pushSubscriptionId = "sub-123",
                 fcmToken = "fcm-abc"
             )
         )
 
-        assertEquals("web_push", json.get("channel").asString)
-        assertEquals("sub-123", json.get("pushSubscriptionId").asString)
+        assertEquals("app_push", json.get("channel").asString)
         assertEquals("fcm-abc", json.get("fcmToken").asString)
-        assertFalse(json.has("auth"))
-        assertFalse(json.has("p256dh"))
-        assertFalse(json.has("endPoint"))
     }
 
     @Test

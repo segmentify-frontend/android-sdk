@@ -20,9 +20,9 @@ class UnsubscribePayloadSerializationTest {
 
     @Test
     fun channelOnlyOmitsNullFields() {
-        val json = toJson(UnsubscribePayload(channel = Channel.WEB_PUSH))
+        val json = toJson(UnsubscribePayload(channel = Channel.APP_PUSH))
 
-        assertEquals("web_push", json.get("channel").asString)
+        assertEquals("app_push", json.get("channel").asString)
         assertFalse(json.has("email"))
         assertFalse(json.has("phone"))
         assertFalse(json.has("purpose"))

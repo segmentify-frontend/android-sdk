@@ -2,13 +2,9 @@ package com.segmentify.segmentifyandroidsdk.model
 
 sealed class SubscribeProperties(val channel: Channel) {
 
-    data class WebPush(
-        var pushSubscriptionId: String? = null,
+    data class AppPush(
         var fcmToken: String? = null,
-        var auth: String? = null,
-        var p256dh: String? = null,
-        var endPoint: String? = null
-    ) : SubscribeProperties(Channel.WEB_PUSH)
+    ) : SubscribeProperties(Channel.APP_PUSH)
 
     data class Email(
         var email: String,
@@ -17,13 +13,16 @@ sealed class SubscribeProperties(val channel: Channel) {
 
     data class Whatsapp(
         var phone: String
+        var purpose: List<Purpose>
     ) : SubscribeProperties(Channel.WHATSAPP)
 
     data class Sms(
         var phone: String
+        var purpose: List<Purpose>
     ) : SubscribeProperties(Channel.SMS)
 
     data class Call(
         var phone: String
+        var purpose: List<Purpose>
     ) : SubscribeProperties(Channel.CALL)
 }

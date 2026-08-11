@@ -4,5 +4,6 @@ data class UnsubscribePayload(
     var channel: Channel,
     var email: String? = null,
     var phone: String? = null,
+    var pushSubscriptionId: String? = null,
     var purpose: List<Purpose>? = null
 )
