@@ -6,6 +6,7 @@ import com.segmentify.segmentifyandroidsdk.network.ConnectionManager
 import com.segmentify.segmentifyandroidsdk.network.NetworkCallback
 import com.segmentify.segmentifyandroidsdk.utils.ClientPreferences
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyLogger
+import okhttp3.ResponseBody
 import java.lang.Exception
 
 
@@ -17,8 +18,9 @@ internal object PushController {
 
         try {
             ConnectionManager.getPushFactory().sendNotification(notificationModel, SegmentifyManager.configModel.apiKey!!)
-                    .enqueue(object : NetworkCallback<Any>() {
-                        override fun onSuccess(response: Any) {
+                    .enqueue(object : NetworkCallback<ResponseBody>() {
+                        override fun onSuccess(response: ResponseBody) {
+                            response.close()
                         }
                     })
         } catch (e: Exception) {
@@ -30,8 +32,9 @@ internal object PushController {
 
         try {
             ConnectionManager.getPushFactory().sendNotificationInteraction(notificationModel, SegmentifyManager.configModel.apiKey!!)
-                    .enqueue(object : NetworkCallback<Any>() {
-                        override fun onSuccess(response: Any) {
+                    .enqueue(object : NetworkCallback<ResponseBody>() {
+                        override fun onSuccess(response: ResponseBody) {
+                            response.close()
                         }
                     })
         } catch (e: Exception) {

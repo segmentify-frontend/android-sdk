@@ -1,12 +1,20 @@
 package com.segmentify.segmentifysdk;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.segmentify.segmentifyandroidsdk.SegmentifyManager;
@@ -25,10 +33,24 @@ import java.util.List;
 public class EventActivity extends AppCompatActivity {
     private static final String TAG = "EventActivity";
 
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Log.d(TAG, "POST_NOTIFICATIONS granted");
+                    registerForPush();
+                } else {
+                    Log.w(TAG, "POST_NOTIFICATIONS denied");
+                    Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        TextView userIdView = findViewById(R.id.textView);
+        showSegmentifyUserId(userIdView);
 
         PageModel model = new PageModel();
         model.setCategory("Home Page");
@@ -139,35 +161,61 @@ public class EventActivity extends AppCompatActivity {
 
 
         Button subscribeButton = findViewById(R.id.button);
-        subscribeButton.setOnClickListener(v -> {
-            FirebaseMessaging.getInstance().getToken()
-                    .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-                            return;
-                        }
-                        // Get new FCM registration token
-                        String token = task.getResult();
-                        NotificationModel nModel = new NotificationModel();
-                        nModel.setDeviceToken(token);
-                        nModel.setType(NotificationType.PERMISSION_INFO);
-                        SegmentifyManager.INSTANCE.sendNotification(nModel);
-                        // Log and toast
-                        String msg = "FCM Registration token: " + token;
-                        Log.d(TAG, msg);
-                    });
-            // [END log_reg_token]
-        });
+        subscribeButton.setOnClickListener(v -> requestNotificationPermissionAndRegister());
     }
 
-    // [START ask_post_notifications]
-    // Declare the launcher at the top of your Activity/Fragment:
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // FCM SDK (and your app) can post notifications.
-                } else {
-                    // TODO: Inform user that that your app will not show notifications.
-                }
-            });
+    private void requestNotificationPermissionAndRegister() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    == PackageManager.PERMISSION_GRANTED) {
+                registerForPush();
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        } else {
+            registerForPush();
+        }
+    }
+
+    private void registerForPush() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+                    String token = task.getResult();
+                    NotificationModel nModel = new NotificationModel();
+                    nModel.setDeviceToken(token);
+                    nModel.setType(NotificationType.PERMISSION_INFO);
+                    SegmentifyManager.INSTANCE.sendNotification(nModel);
+                    Log.d(TAG, "FCM Registration token: " + token);
+                    Toast.makeText(this, "Push registered", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void showSegmentifyUserId(TextView userIdView) {
+        showSegmentifyUserId(userIdView, 0);
+    }
+
+    private void showSegmentifyUserId(TextView userIdView, int attempt) {
+        String userId = SegmentifyManager.INSTANCE.getClientPreferences() != null
+                ? SegmentifyManager.INSTANCE.getClientPreferences().getUserId()
+                : null;
+        if (userId == null || userId.isEmpty()) {
+            if (attempt >= 10) {
+                userIdView.setText("Segmentify userId: (not available)");
+                Log.w(TAG, "Segmentify userId not available");
+                return;
+            }
+            userIdView.setText("Segmentify userId: (loading...)");
+            new Handler(Looper.getMainLooper()).postDelayed(
+                    () -> showSegmentifyUserId(userIdView, attempt + 1),
+                    500
+            );
+            return;
+        }
+        userIdView.setText("Segmentify userId: " + userId);
+        Log.d(TAG, "Segmentify userId: " + userId);
+    }
 }

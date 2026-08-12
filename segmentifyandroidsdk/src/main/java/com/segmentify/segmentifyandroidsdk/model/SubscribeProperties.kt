@@ -12,17 +12,17 @@ sealed class SubscribeProperties(val channel: Channel) {
     ) : SubscribeProperties(Channel.EMAIL)
 
     data class Whatsapp(
-        var phone: String
+        var phone: String,
         var purpose: List<Purpose>
     ) : SubscribeProperties(Channel.WHATSAPP)
 
     data class Sms(
-        var phone: String
+        var phone: String,
         var purpose: List<Purpose>
     ) : SubscribeProperties(Channel.SMS)
 
     data class Call(
-        var phone: String
+        var phone: String,
         var purpose: List<Purpose>
     ) : SubscribeProperties(Channel.CALL)
 }
