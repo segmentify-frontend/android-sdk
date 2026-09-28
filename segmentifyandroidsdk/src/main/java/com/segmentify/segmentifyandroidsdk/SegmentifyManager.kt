@@ -12,6 +12,7 @@ import com.segmentify.segmentifyandroidsdk.utils.CdpConsent
 import com.segmentify.segmentifyandroidsdk.utils.CdpUserProfileStore
 import com.segmentify.segmentifyandroidsdk.utils.ClientPreferences
 import com.segmentify.segmentifyandroidsdk.utils.Constant
+import com.segmentify.segmentifyandroidsdk.utils.PushInteraction
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyCallback
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyLogger
 import java.util.*
@@ -620,6 +621,16 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
+    private fun sendPushClick(instanceId: String, interactionId: String) {
+        val interactionModel = InteractionModel()
+        interactionModel.eventName = Constant.interactionEventName
+        interactionModel.type = Constant.pushStep
+        interactionModel.instanceId = instanceId
+        interactionModel.interactionId = interactionId
+
+        EventController.sendInteractionEvent(interactionModel)
+    }
+
     fun sendSearchClickView(instanceId: String, interactionId: String) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
@@ -843,7 +854,7 @@ object SegmentifyManager {
                 return
             } else {
                 clientPreferences?.setPushCampaignId(notificationModel.instanceId!!)
-                sendClickView(notificationModel.instanceId!!, notificationModel.instanceId!!);
+                sendPushClick(notificationModel.instanceId!!, PushInteraction.resolveInteractionId(notificationModel.instanceId!!, notificationModel.interactionId))
             }
         }
         PushController.sendNotificationInteraction(notificationModel)
