@@ -42,6 +42,7 @@ class Constant {
         val impressionStep = "impression"
         val widgetViewStep = "widget-view"
         val clickStep = "click"
+        val pushStep = "push"
         val bannerImpressionStep = "impression"
         val bannerClickStep = "click"
         val bannerUpdateStep = "update"
