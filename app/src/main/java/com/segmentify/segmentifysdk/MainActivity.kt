@@ -12,6 +12,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.segmentify.segmentifyandroidsdk.SegmentifyManager
+import com.segmentify.segmentifyandroidsdk.model.NotificationModel
+import com.segmentify.segmentifyandroidsdk.model.NotificationType
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +36,16 @@ class MainActivity : AppCompatActivity() {
     private fun handleIntent(intent: Intent?) {
         if (intent == null) {
             return
+        }
+
+        if (intent.hasExtra("instanceId")) {
+            val instanceId = intent.getStringExtra("instanceId")
+            if (!instanceId.isNullOrEmpty()) {
+                val model = NotificationModel()
+                model.type = NotificationType.CLICK
+                model.instanceId = instanceId
+                SegmentifyManager.sendNotificationInteraction(model)
+            }
         }
 
         if (intent.hasExtra("deeplink")) {

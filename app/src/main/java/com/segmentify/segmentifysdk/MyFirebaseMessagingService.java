@@ -42,7 +42,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             SegmentifyPushPayload payload = SegmentifyPushPayload.from(remoteMessage.getData());
 
             if (!payload.getTitle().isEmpty() || !payload.getMessage().isEmpty()) {
-                sendNotification(payload.getMessage(), payload.getTitle(), payload.getTargetUrl(), payload.getImage());
+                sendNotification(payload.getMessage(), payload.getTitle(), payload.getTargetUrl(), payload.getImage(), payload.getIcon(), payload.getInstanceId());
             }
 
             SegmentifyManager.INSTANCE.handlePushReceived(payload);
@@ -68,7 +68,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // TODO: Implement this method to send token to your app server.
     }
 
-    private void sendNotification(String messageBody, String title, String deepLink, String image) {
+    private void sendNotification(String messageBody, String title, String deepLink, String image, String icon, String instanceId) {
         try {
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -79,6 +79,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             if (image != null && !image.isEmpty()) {
                 intent.putExtra("pushimage", image);
+            }
+
+            if (instanceId != null && !instanceId.isEmpty()) {
+                intent.putExtra("instanceId", instanceId);
             }
 
             int requestCode = (int) System.currentTimeMillis();
@@ -98,9 +102,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             .setAutoCancel(true)
                             .setSound(defaultSoundUri)
                             .setContentIntent(pendingIntent)
-                            .setStyle(new NotificationCompat.BigPictureStyle()
-                                    .bigPicture(getBitmapFromUrl(image)))
                             .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+            if (image != null && !image.isEmpty()) {
+                notificationBuilder.setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(getBitmapFromUrl(image)));
+            }
+
+            if (icon != null && !icon.isEmpty()) {
+                Bitmap iconBitmap = getBitmapFromUrl(icon);
+                if (iconBitmap != null) {
+                    notificationBuilder.setLargeIcon(iconBitmap);
+                }
+            }
 
             NotificationManager notificationManager =
                     (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

@@ -1,6 +1,5 @@
-package com.segmentify.segmentifyandroidsdk.controller
+﻿package com.segmentify.segmentifyandroidsdk.controller
 
-import com.segmentify.segmentifyandroidsdk.SegmentifyManager
 import com.segmentify.segmentifyandroidsdk.model.NotificationModel
 import com.segmentify.segmentifyandroidsdk.network.ConnectionManager
 import com.segmentify.segmentifyandroidsdk.network.NetworkCallback
@@ -17,7 +16,7 @@ internal object PushController {
     fun sendNotification(notificationModel: NotificationModel) {
 
         try {
-            ConnectionManager.getPushFactory().sendNotification(notificationModel, SegmentifyManager.configModel.apiKey!!)
+            ConnectionManager.getPushFactory().sendNotification(notificationModel)
                     .enqueue(object : NetworkCallback<ResponseBody>() {
                         override fun onSuccess(response: ResponseBody) {
                             response.close()
@@ -31,7 +30,7 @@ internal object PushController {
     fun sendNotificationInteraction(notificationModel: NotificationModel) {
 
         try {
-            ConnectionManager.getPushFactory().sendNotificationInteraction(notificationModel, SegmentifyManager.configModel.apiKey!!)
+            ConnectionManager.getPushFactory().sendNotificationInteraction(notificationModel)
                     .enqueue(object : NetworkCallback<ResponseBody>() {
                         override fun onSuccess(response: ResponseBody) {
                             response.close()
