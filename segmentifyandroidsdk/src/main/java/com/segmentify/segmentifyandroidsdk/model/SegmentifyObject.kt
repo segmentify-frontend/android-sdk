@@ -5,8 +5,11 @@ import com.segmentify.segmentifyandroidsdk.BuildConfig
 import com.segmentify.segmentifyandroidsdk.SegmentifyManager
 
 open class SegmentifyObject{
-    var userId : String? = SegmentifyManager.clientPreferences?.getUserId()
-    var sessionId : String? = SegmentifyManager.clientPreferences?.getSessionId()
+    var userId : String? = null
+        get() = field ?: SegmentifyManager.clientPreferences?.getUserId()
+
+    var sessionId : String? = null
+        get() = field ?: SegmentifyManager.clientPreferences?.getSessionId()
 
     @SerializedName("name")
     var eventName : String? = null

@@ -22,55 +22,41 @@ object ConnectionManager {
     private var eventFactory: EventFactory
     private lateinit var pushFactory: PushFactory
     private val client: OkHttpClient
+    private val logging = HttpLoggingInterceptor()
 
     init {
-        val logging = HttpLoggingInterceptor()
-
-        if (SegmentifyManager.clientPreferences?.isLogVisible()!!) {
-            logging.level = HttpLoggingInterceptor.Level.BODY
-        } else {
-            logging.level = HttpLoggingInterceptor.Level.NONE
-        }
+        updateLoggingLevel()
 
         val httpClient = OkHttpClient.Builder()
 
         //Gelen response kontrol edilecek
-        httpClient.addInterceptor(logging).addInterceptor(Interceptor { chain ->
+        httpClient.addInterceptor(Interceptor { chain ->
             val request = chain?.request()
-            val newRequest: Request
+            var newRequestBuilder = request?.newBuilder()
 
             try {
-                newRequest = request?.newBuilder()
-                        ?.addHeader("Origin", SegmentifyManager.configModel.subDomain)
+                newRequestBuilder?.addHeader("Origin", SegmentifyManager.configModel.subDomain ?: "")
                         ?.addHeader("Content-Type", "application/json")
-                        ?.addHeader("Accept", "application/json")!!.build()
+                        ?.addHeader("Accept", "application/json")
+
+                if (!SegmentifyManager.configModel.authHeader.isNullOrEmpty()) {
+                    newRequestBuilder?.addHeader("Authorization", SegmentifyManager.configModel.authHeader!!)
+                } else if (!SegmentifyManager.configModel.apiKey.isNullOrEmpty()) {
+                    val url = request?.url()?.newBuilder()
+                            ?.addQueryParameter("apiKey", SegmentifyManager.configModel.apiKey)
+                            ?.build()
+                    newRequestBuilder?.url(url!!)
+                }
             } catch (e: Exception) {
                 Log.d("addHeader", "Error")
                 e.printStackTrace()
                 return@Interceptor chain?.proceed(request)!!
             }
 
-            /*if(SegmentifyManager.clientPreferences != null && SegmentifyManager.clientPreferences!!.getSessionId().isNullOrBlank()){
-                val getSessionIdRequest = Request.Builder().header("Content-Type", "application/json").header("Accept", "application/json").get().url(BuildConfig.KEY_ADDRESS + "get/key?count=1").build()
-                var response = getSyncClient().newCall(getSessionIdRequest).execute()
-                val listType = object : TypeToken<ArrayList<String>>() {}.type
-                var sessionIdResponse = Gson().fromJson<ArrayList<String>>(response.body().toString(), listType)
-
-                SegmentifyManager.clientPreferences?.setSessionId(sessionIdResponse[0])
-            }
-
-            if(SegmentifyManager.clientPreferences != null && SegmentifyManager.clientPreferences!!.getUserId().isNullOrBlank()){
-                val getUserIDSessionIdRequest = Request.Builder().header("Content-Type", "application/json").header("Accept", "application/json").get().url(BuildConfig.KEY_ADDRESS + "get/key?count=2").build()
-                var response = getSyncClient().newCall(getUserIDSessionIdRequest).execute()
-                val listType = object : TypeToken<ArrayList<String>>() {}.type
-                var userIdSessionIdResponse = Gson().fromJson<ArrayList<String>>(response.body().toString(), listType)
-
-                SegmentifyManager.clientPreferences?.setUserId(userIdSessionIdResponse[0])
-                SegmentifyManager.clientPreferences?.setSessionId(userIdSessionIdResponse[1])
-            }*/
-
-            chain.proceed(newRequest)
+            chain.proceed(newRequestBuilder!!.build())
         })
+
+        httpClient.addInterceptor(logging)
         httpClient.connectTimeout(timeoutInterval.toLong(), TimeUnit.SECONDS)
         httpClient.readTimeout(timeoutInterval.toLong(), TimeUnit.SECONDS)
 
@@ -99,6 +85,14 @@ object ConnectionManager {
                     .build()
 
             pushFactory = pushService.create(PushFactory::class.java)
+        }
+    }
+
+    fun updateLoggingLevel() {
+        logging.level = if (SegmentifyManager.clientPreferences?.isLogVisible() == true) {
+            HttpLoggingInterceptor.Level.BODY
+        } else {
+            HttpLoggingInterceptor.Level.NONE
         }
     }
 
