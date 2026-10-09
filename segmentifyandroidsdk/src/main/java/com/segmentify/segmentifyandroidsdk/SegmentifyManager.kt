@@ -52,10 +52,11 @@ object SegmentifyManager {
         clientPreferences?.setSessionKeepSeconds(sessionKeepSecond)
     }
 
-    fun setConfig(apiKey: String, dataCenterUrl: String, subDomain: String) {
+    fun setConfig(apiKey: String?, dataCenterUrl: String?, subDomain: String?, authHeader: String? = null) {
         this.configModel.apiKey = apiKey
         this.configModel.dataCenterUrl = dataCenterUrl
         this.configModel.subDomain = subDomain
+        this.configModel.authHeader = authHeader
         this.configModel.os = "ANDROID"
         this.configModel.device = "ANDROID"
         setBaseApiUrl()
@@ -68,12 +69,13 @@ object SegmentifyManager {
 
     fun logStatus(isVisible: Boolean) {
         clientPreferences?.setLogVisible(isVisible)
+        ConnectionManager.updateLoggingLevel()
     }
 
-    fun config(context: Context, appKey: String, dataCenterUrl: String, subDomain: String) {
+    fun config(context: Context, appKey: String?, dataCenterUrl: String?, subDomain: String?, authHeader: String? = null) {
 
-        if (appKey.isBlank() || dataCenterUrl.isBlank() || subDomain.isBlank()) {
-            SegmentifyLogger.printErrorLog("Api is not initialized, you can not enter null or empty parameter to config, please recheck your config parameters")
+        if ((authHeader.isNullOrBlank() && appKey.isNullOrBlank()) || dataCenterUrl.isNullOrBlank() || subDomain.isNullOrBlank()) {
+            SegmentifyLogger.printErrorLog("Api is not initialized, you must provide (authHeader or appKey), dataCenterUrl, and subDomain)")
             return
         }
 
@@ -82,6 +84,7 @@ object SegmentifyManager {
         this.configModel.apiKey = appKey
         this.configModel.dataCenterUrl = dataCenterUrl
         this.configModel.subDomain = subDomain
+        this.configModel.authHeader = authHeader
         this.configModel.os = "ANDROID"
         this.configModel.device = "ANDROID"
         setBaseApiUrl()
