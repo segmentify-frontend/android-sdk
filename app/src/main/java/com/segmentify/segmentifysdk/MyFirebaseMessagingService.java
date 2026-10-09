@@ -84,72 +84,89 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendNotification(String messageBody, String title, String deepLink, String image, String icon, String instanceId) {
-        try {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        // Load images on background thread to avoid NetworkOnMainThreadException
+        new Thread(() -> {
+            try {
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            if (deepLink != null && !deepLink.isEmpty()) {
-                intent.putExtra("deeplink", deepLink);
-            }
-
-            if (image != null && !image.isEmpty()) {
-                intent.putExtra("pushimage", image);
-            }
-
-            if (instanceId != null && !instanceId.isEmpty()) {
-                intent.putExtra("instanceId", instanceId);
-            }
-
-            int requestCode = (int) System.currentTimeMillis();
-
-            int flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, requestCode, intent, flags);
-
-            String channelId = "segmentify_push_channel_v2";
-
-            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-            NotificationCompat.Builder notificationBuilder =
-                    new NotificationCompat.Builder(this, channelId)
-                            .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle(title != null ? title : "Notification")
-                            .setContentText(messageBody)
-                            .setAutoCancel(true)
-                            .setSound(defaultSoundUri)
-                            .setContentIntent(pendingIntent)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH);
-
-            if (image != null && !image.isEmpty()) {
-                notificationBuilder.setStyle(new NotificationCompat.BigPictureStyle()
-                        .bigPicture(getBitmapFromUrl(image)));
-            }
-
-            if (icon != null && !icon.isEmpty()) {
-                Bitmap iconBitmap = getBitmapFromUrl(icon);
-                if (iconBitmap != null) {
-                    notificationBuilder.setLargeIcon(iconBitmap);
+                if (deepLink != null && !deepLink.isEmpty()) {
+                    intent.putExtra("deeplink", deepLink);
                 }
-            }
 
-            NotificationManager notificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (image != null && !image.isEmpty()) {
+                    intent.putExtra("pushimage", image);
+                }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(
-                        channelId,
-                        "Segmentify Bildirimleri",
-                        NotificationManager.IMPORTANCE_HIGH
-                );
-                channel.setDescription("Uygulama bildirimleri");
-                channel.enableVibration(true);
-                notificationManager.createNotificationChannel(channel);
+                if (instanceId != null && !instanceId.isEmpty()) {
+                    intent.putExtra("instanceId", instanceId);
+                }
+
+                int requestCode = (int) System.currentTimeMillis();
+
+                int flags = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, requestCode, intent, flags);
+
+                String channelId = "segmentify_push_channel_v2";
+
+                Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+                NotificationCompat.Builder notificationBuilder =
+                        new NotificationCompat.Builder(this, channelId)
+                                .setSmallIcon(R.mipmap.ic_launcher)
+                                .setContentTitle(title != null ? title : "Notification")
+                                .setContentText(messageBody)
+                                .setAutoCancel(true)
+                                .setSound(defaultSoundUri)
+                                .setContentIntent(pendingIntent)
+                                .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+                Bitmap iconBitmap = null;
+                if (icon != null && !icon.isEmpty()) {
+                    iconBitmap = getBitmapFromUrl(icon);
+                    if (iconBitmap != null) {
+                        notificationBuilder.setLargeIcon(iconBitmap);
+                        Log.d(TAG, "Icon loaded successfully from: " + icon);
+                    } else {
+                        Log.e(TAG, "Failed to load icon from: " + icon);
+                    }
+                }
+
+                if (image != null && !image.isEmpty()) {
+                    Bitmap imageBitmap = getBitmapFromUrl(image);
+                    if (imageBitmap != null) {
+                        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle()
+                                .bigPicture(imageBitmap);
+                        if (iconBitmap != null) {
+                            bigPictureStyle.bigLargeIcon(iconBitmap);
+                        }
+                        notificationBuilder.setStyle(bigPictureStyle);
+                        Log.d(TAG, "Image loaded successfully from: " + image);
+                    } else {
+                        Log.e(TAG, "Failed to load image from: " + image);
+                    }
+                }
+
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    NotificationChannel channel = new NotificationChannel(
+                            channelId,
+                            "Segmentify Bildirimleri",
+                            NotificationManager.IMPORTANCE_HIGH
+                    );
+                    channel.setDescription("Uygulama bildirimleri");
+                    channel.enableVibration(true);
+                    notificationManager.createNotificationChannel(channel);
+                }
+                notificationManager.notify(requestCode, notificationBuilder.build());
+                Log.d(TAG, "Bildirim oluşturma komutu gönderildi. ID: " + requestCode);
+            } catch (Exception e) {
+                Log.e(TAG, "Bildirim oluşturulurken hata: " + e.getMessage());
+                e.printStackTrace();
             }
-            notificationManager.notify(requestCode, notificationBuilder.build());
-            Log.d("MyFirebaseMsgService", "Bildirim oluşturma komutu gönderildi. ID: " + requestCode);
-        } catch (Exception e) {
-            Log.e("MyFirebaseMsgService", "Bildirim oluşturulurken hata: " + e.getMessage());
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     private Bitmap getBitmapFromUrl(String imageUrl) {
