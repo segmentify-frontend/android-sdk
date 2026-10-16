@@ -10,6 +10,7 @@ class NotificationModel{
     var instanceId:String? = null
     var interactionId:String? = null
     var sdkVersion:String? = null
+    var correlationId:String? = null
     private  var userId : String?=null
     private  var osVersion:String?=null
     private  var os:String?=null
