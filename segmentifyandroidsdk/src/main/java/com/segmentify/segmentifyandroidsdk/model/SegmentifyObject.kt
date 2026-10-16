@@ -7,9 +7,20 @@ import com.segmentify.segmentifyandroidsdk.SegmentifyManager
 open class SegmentifyObject{
     var userId : String? = null
         get() = field ?: SegmentifyManager.clientPreferences?.getUserId()
+        set(value) { field = value }
 
     var sessionId : String? = null
         get() = field ?: SegmentifyManager.clientPreferences?.getSessionId()
+        set(value) { field = value }
+
+    /**
+     * Materializes userId and sessionId from preferences into backing fields
+     * so that Gson (which reads fields via reflection, not getters) includes them.
+     */
+    fun resolveIds() {
+        if (userId == null) userId = SegmentifyManager.clientPreferences?.getUserId()
+        if (sessionId == null) sessionId = SegmentifyManager.clientPreferences?.getSessionId()
+    }
 
     @SerializedName("name")
     var eventName : String? = null

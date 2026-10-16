@@ -24,7 +24,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         checkPermissions()
-        handleIntent(intent)
+        if (savedInstanceState == null) {
+            handleIntent(intent)
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         if (intent.hasExtra("instanceId")) {
             val instanceId = intent.getStringExtra("instanceId")
+            intent.removeExtra("instanceId")
             if (!instanceId.isNullOrEmpty()) {
                 val model = NotificationModel()
                 model.type = NotificationType.CLICK

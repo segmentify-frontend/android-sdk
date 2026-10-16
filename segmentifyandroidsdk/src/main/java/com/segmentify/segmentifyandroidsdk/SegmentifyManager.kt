@@ -52,7 +52,16 @@ object SegmentifyManager {
         clientPreferences?.setSessionKeepSeconds(sessionKeepSecond)
     }
 
+    fun setUserId(userId: String) {
+        clientPreferences?.setUserId(userId)
+    }
+
+    @JvmOverloads
     fun setConfig(apiKey: String?, dataCenterUrl: String?, subDomain: String?, authHeader: String? = null) {
+        if ((authHeader.isNullOrBlank() && apiKey.isNullOrBlank()) || dataCenterUrl.isNullOrBlank() || subDomain.isNullOrBlank()) {
+            SegmentifyLogger.printErrorLog("Api is not initialized, you must provide (authHeader or appKey), dataCenterUrl, and subDomain)")
+            return
+        }
         this.configModel.apiKey = apiKey
         this.configModel.dataCenterUrl = dataCenterUrl
         this.configModel.subDomain = subDomain
@@ -72,6 +81,7 @@ object SegmentifyManager {
         ConnectionManager.updateLoggingLevel()
     }
 
+    @JvmOverloads
     fun config(context: Context, appKey: String?, dataCenterUrl: String?, subDomain: String?, authHeader: String? = null) {
 
         if ((authHeader.isNullOrBlank() && appKey.isNullOrBlank()) || dataCenterUrl.isNullOrBlank() || subDomain.isNullOrBlank()) {
@@ -638,6 +648,7 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
+    @JvmOverloads
     fun sendSearchClickView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName

@@ -190,7 +190,7 @@ public class EventActivity extends AppCompatActivity {
                     nModel.setType(NotificationType.PERMISSION_INFO);
                     SegmentifyManager.INSTANCE.sendNotification(nModel);
                     Log.d(TAG, "FCM Registration token: " + token);
-                    Toast.makeText(this, "Push registered", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Push registration sent", Toast.LENGTH_SHORT).show();
                 });
     }
 
