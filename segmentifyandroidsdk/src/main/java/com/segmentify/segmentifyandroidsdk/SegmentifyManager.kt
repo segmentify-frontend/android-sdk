@@ -546,12 +546,13 @@ object SegmentifyManager {
         })
     }
 
-    fun sendImpression(instanceId: String, interactionId: String) {
+    fun sendImpression(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.impressionStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
         EventController.sendInteractionEvent(interactionModel)
 
     }
@@ -572,12 +573,13 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
-    fun sendWidgetView(instanceId: String, interactionId: String) {
+    fun sendWidgetView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.widgetViewStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
 
         EventController.sendInteractionEvent(interactionModel)
     }
@@ -598,12 +600,13 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
-    fun sendClickView(instanceId: String, interactionId: String) {
+    fun sendClickView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.clickStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
 
         EventController.sendInteractionEvent(interactionModel)
     }
@@ -624,22 +627,24 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
-    private fun sendPushClick(instanceId: String, interactionId: String) {
+    private fun sendPushClick(instanceId: String, interactionId: String, correlationId: String? = null) {
         val interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.pushStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
 
         EventController.sendInteractionEvent(interactionModel)
     }
 
-    fun sendSearchClickView(instanceId: String, interactionId: String) {
+    fun sendSearchClickView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.searchStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
 
         EventController.sendInteractionEvent(interactionModel)
     }
@@ -857,7 +862,7 @@ object SegmentifyManager {
                 return
             } else {
                 clientPreferences?.setPushCampaignId(notificationModel.instanceId!!)
-                sendPushClick(notificationModel.instanceId!!, PushInteraction.resolveInteractionId(notificationModel.instanceId!!, notificationModel.interactionId))
+                sendPushClick(notificationModel.instanceId!!, PushInteraction.resolveInteractionId(notificationModel.instanceId!!, notificationModel.interactionId), notificationModel.correlationId)
             }
         }
         PushController.sendNotificationInteraction(notificationModel)

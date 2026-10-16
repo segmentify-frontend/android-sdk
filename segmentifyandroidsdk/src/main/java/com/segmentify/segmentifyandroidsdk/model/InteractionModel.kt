@@ -9,4 +9,5 @@ class InteractionModel: SegmentifyObject() {
     var interactionId:String? = null
     var instanceId:String? = null
     var type:String? = null
+    var correlationId:String? = null
 }
