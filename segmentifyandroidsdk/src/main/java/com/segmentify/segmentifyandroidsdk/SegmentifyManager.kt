@@ -52,10 +52,20 @@ object SegmentifyManager {
         clientPreferences?.setSessionKeepSeconds(sessionKeepSecond)
     }
 
-    fun setConfig(apiKey: String, dataCenterUrl: String, subDomain: String) {
+    fun setUserId(userId: String) {
+        clientPreferences?.setUserId(userId)
+    }
+
+    @JvmOverloads
+    fun setConfig(apiKey: String?, dataCenterUrl: String?, subDomain: String?, authHeader: String? = null) {
+        if ((authHeader.isNullOrBlank() && apiKey.isNullOrBlank()) || dataCenterUrl.isNullOrBlank() || subDomain.isNullOrBlank()) {
+            SegmentifyLogger.printErrorLog("Api is not initialized, you must provide (authHeader or appKey), dataCenterUrl, and subDomain)")
+            return
+        }
         this.configModel.apiKey = apiKey
         this.configModel.dataCenterUrl = dataCenterUrl
         this.configModel.subDomain = subDomain
+        this.configModel.authHeader = authHeader
         this.configModel.os = "ANDROID"
         this.configModel.device = "ANDROID"
         setBaseApiUrl()
@@ -68,12 +78,14 @@ object SegmentifyManager {
 
     fun logStatus(isVisible: Boolean) {
         clientPreferences?.setLogVisible(isVisible)
+        ConnectionManager.updateLoggingLevel()
     }
 
-    fun config(context: Context, appKey: String, dataCenterUrl: String, subDomain: String) {
+    @JvmOverloads
+    fun config(context: Context, appKey: String?, dataCenterUrl: String?, subDomain: String?, authHeader: String? = null) {
 
-        if (appKey.isBlank() || dataCenterUrl.isBlank() || subDomain.isBlank()) {
-            SegmentifyLogger.printErrorLog("Api is not initialized, you can not enter null or empty parameter to config, please recheck your config parameters")
+        if ((authHeader.isNullOrBlank() && appKey.isNullOrBlank()) || dataCenterUrl.isNullOrBlank() || subDomain.isNullOrBlank()) {
+            SegmentifyLogger.printErrorLog("Api is not initialized, you must provide (authHeader or appKey), dataCenterUrl, and subDomain)")
             return
         }
 
@@ -82,6 +94,7 @@ object SegmentifyManager {
         this.configModel.apiKey = appKey
         this.configModel.dataCenterUrl = dataCenterUrl
         this.configModel.subDomain = subDomain
+        this.configModel.authHeader = authHeader
         this.configModel.os = "ANDROID"
         this.configModel.device = "ANDROID"
         setBaseApiUrl()
@@ -543,12 +556,13 @@ object SegmentifyManager {
         })
     }
 
-    fun sendImpression(instanceId: String, interactionId: String) {
+    fun sendImpression(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.impressionStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
         EventController.sendInteractionEvent(interactionModel)
 
     }
@@ -569,12 +583,13 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
-    fun sendWidgetView(instanceId: String, interactionId: String) {
+    fun sendWidgetView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.widgetViewStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
 
         EventController.sendInteractionEvent(interactionModel)
     }
@@ -595,12 +610,13 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
-    fun sendClickView(instanceId: String, interactionId: String) {
+    fun sendClickView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.clickStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
 
         EventController.sendInteractionEvent(interactionModel)
     }
@@ -621,22 +637,25 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
-    private fun sendPushClick(instanceId: String, interactionId: String) {
+    private fun sendPushClick(instanceId: String, interactionId: String, correlationId: String? = null) {
         val interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.pushStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
 
         EventController.sendInteractionEvent(interactionModel)
     }
 
-    fun sendSearchClickView(instanceId: String, interactionId: String) {
+    @JvmOverloads
+    fun sendSearchClickView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
         interactionModel.type = Constant.searchStep
         interactionModel.instanceId = instanceId
         interactionModel.interactionId = interactionId
+        interactionModel.correlationId = correlationId
 
         EventController.sendInteractionEvent(interactionModel)
     }
@@ -854,7 +873,7 @@ object SegmentifyManager {
                 return
             } else {
                 clientPreferences?.setPushCampaignId(notificationModel.instanceId!!)
-                sendPushClick(notificationModel.instanceId!!, PushInteraction.resolveInteractionId(notificationModel.instanceId!!, notificationModel.interactionId))
+                sendPushClick(notificationModel.instanceId!!, PushInteraction.resolveInteractionId(notificationModel.instanceId!!, notificationModel.interactionId), notificationModel.correlationId)
             }
         }
         PushController.sendNotificationInteraction(notificationModel)

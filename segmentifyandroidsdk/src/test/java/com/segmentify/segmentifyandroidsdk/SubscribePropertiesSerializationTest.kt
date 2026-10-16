@@ -21,7 +21,6 @@ class SubscribePropertiesSerializationTest {
     fun webPushSerializesChannelAndOmitsNullFields() {
         val json = toJson(
             SubscribeProperties.AppPush(
-                pushSubscriptionId = "sub-123",
                 fcmToken = "fcm-abc"
             )
         )
@@ -49,7 +48,7 @@ class SubscribePropertiesSerializationTest {
 
     @Test
     fun whatsappSerializesChannelAndPhone() {
-        val json = toJson(SubscribeProperties.Whatsapp(phone = "1234567890"))
+        val json = toJson(SubscribeProperties.Whatsapp(phone = "1234567890", purpose = listOf(Purpose.MARKETING)))
 
         assertEquals("whatsapp", json.get("channel").asString)
         assertEquals("1234567890", json.get("phone").asString)
@@ -57,7 +56,7 @@ class SubscribePropertiesSerializationTest {
 
     @Test
     fun smsSerializesChannel() {
-        val json = toJson(SubscribeProperties.Sms(phone = "1234567890"))
+        val json = toJson(SubscribeProperties.Sms(phone = "1234567890", purpose = listOf(Purpose.MARKETING)))
 
         assertEquals("sms", json.get("channel").asString)
         assertEquals("1234567890", json.get("phone").asString)
@@ -65,7 +64,7 @@ class SubscribePropertiesSerializationTest {
 
     @Test
     fun callSerializesChannel() {
-        val json = toJson(SubscribeProperties.Call(phone = "1234567890"))
+        val json = toJson(SubscribeProperties.Call(phone = "1234567890", purpose = listOf(Purpose.MARKETING)))
 
         assertEquals("call", json.get("channel").asString)
         assertTrue(json.has("phone"))
