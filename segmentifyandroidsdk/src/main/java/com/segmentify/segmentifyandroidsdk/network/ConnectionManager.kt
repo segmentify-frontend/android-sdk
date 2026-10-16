@@ -29,14 +29,21 @@ object ConnectionManager {
 
         val httpClient = OkHttpClient.Builder()
 
+        // Add logging interceptor before the auth interceptor so that
+        // the Authorization header is not captured in logs.
+        httpClient.addInterceptor(logging)
+
         //Gelen response kontrol edilecek
         httpClient.addInterceptor(Interceptor { chain ->
             val request = chain?.request()
             var newRequestBuilder = request?.newBuilder()
 
             try {
-                newRequestBuilder?.addHeader("Origin", SegmentifyManager.configModel.subDomain ?: "")
-                        ?.addHeader("Content-Type", "application/json")
+                val subDomain = SegmentifyManager.configModel.subDomain
+                if (!subDomain.isNullOrEmpty()) {
+                    newRequestBuilder?.addHeader("Origin", subDomain)
+                }
+                newRequestBuilder?.addHeader("Content-Type", "application/json")
                         ?.addHeader("Accept", "application/json")
 
                 if (!SegmentifyManager.configModel.authHeader.isNullOrEmpty()) {
@@ -55,8 +62,6 @@ object ConnectionManager {
 
             chain.proceed(newRequestBuilder!!.build())
         })
-
-        httpClient.addInterceptor(logging)
         httpClient.connectTimeout(timeoutInterval.toLong(), TimeUnit.SECONDS)
         httpClient.readTimeout(timeoutInterval.toLong(), TimeUnit.SECONDS)
 
