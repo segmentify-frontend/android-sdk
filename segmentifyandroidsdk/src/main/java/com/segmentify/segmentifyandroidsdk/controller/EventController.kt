@@ -151,6 +151,23 @@ internal object EventController {
 
     }
 
+    fun sendWishlist(wishlistModel: WishlistModel){
+
+        if(!wishlistModel.userId.isNullOrEmpty() && !wishlistModel.sessionId.isNullOrEmpty()){
+
+            ConnectionManager.getEventFactory().sendWishlist(wishlistModel,SegmentifyManager.configModel.apiKey!!)
+                    .enqueue(object : NetworkCallback<Any>(){
+                        override fun onSuccess(response: Any) {
+                        }
+                    })
+        }
+        else{
+            SegmentifyLogger.printErrorLog("You must fill userid&sessionid before accessing wishlist event")
+            return
+        }
+
+    }
+
     fun sendCheckout(checkoutModel: CheckoutModel,segmentifyCallback: SegmentifyCallback<ArrayList<RecommendationModel>>) {
 
         if(!checkoutModel.userId.isNullOrEmpty() && !checkoutModel.sessionId.isNullOrEmpty()){
