@@ -28,6 +28,7 @@ class Constant {
         val userLogoutEventName = "USER_LOGOUT"
         val userSubscribeEventName = "USER_SUBSCRIBE"
         val userUnsubscribeEventName = "USER_UNSUBSCRIBE"
+        val wishlistEventName = "WISHLIST"
 
         //Steps
         val customerInformationStep = "customer"
@@ -47,6 +48,10 @@ class Constant {
         val bannerClickStep = "click"
         val bannerUpdateStep = "update"
         val searchStep = "search"
+        val wishlistAddStep = "add"
+        val wishlistRemoveStep = "remove"
+        val wishlistDetailStep = "detail"
+        val wishlistViewFavoritesStep = "view-favorites"
 
         //Custom
         val sessionKeepSecond = 86400
