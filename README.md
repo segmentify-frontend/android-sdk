@@ -2,7 +2,7 @@
 Segmentify  SDK for sending events and rendering recommendations for android based devices
 
 > **Supports Android 4.4(API Level: 24) and higher devices.**
-> **Current version : 2.2.9*
+> **Current version : 2.3.0*
 
 ## Installation
 
@@ -84,6 +84,39 @@ Please check LICENSE file to learn more about details.
 
 ## Push Permission & User Updates 2.2.6
 2.2.6 update changes user events in the background. This is a completely internal and will not effect sdk users. Also productId parameter has been removed from push interaction event.
+
+## Wishlist Events 2.3.0
+2.3.0 adds the `WISHLIST` event, so app users' favourites reach the wishlist counters and the "Favorite Activity" social proof. Supported steps are `add`, `remove`, `detail` and `view-favorites`.
+
+`add`, `remove` and `detail` need a non-blank `productId`. `view-favorites` needs a `favoritesList` (an empty list is allowed). Calls with a missing field or an unknown step are not sent, and the SDK logs an error.
+
+Kotlin:
+```kotlin
+SegmentifyManager.sendWishlistAdd("product-1")
+SegmentifyManager.sendWishlistRemove("product-1")
+SegmentifyManager.sendWishlistDetail("product-1")
+SegmentifyManager.sendWishlistViewFavorites(listOf("product-1", "product-2"))
+
+// or with the model
+val wishlistModel = WishlistModel()
+wishlistModel.step = "add"
+wishlistModel.productId = "product-1"
+SegmentifyManager.sendWishlist(wishlistModel)
+```
+
+Java:
+```java
+SegmentifyManager.INSTANCE.sendWishlistAdd("product-1");
+SegmentifyManager.INSTANCE.sendWishlistRemove("product-1");
+SegmentifyManager.INSTANCE.sendWishlistDetail("product-1");
+SegmentifyManager.INSTANCE.sendWishlistViewFavorites(Arrays.asList("product-1", "product-2"));
+
+// or with the model
+WishlistModel wishlistModel = new WishlistModel();
+wishlistModel.setStep("add");
+wishlistModel.setProductId("product-1");
+SegmentifyManager.INSTANCE.sendWishlist(wishlistModel);
+```
 
 Good Luck!
 
