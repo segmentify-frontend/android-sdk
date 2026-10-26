@@ -15,6 +15,7 @@ import com.segmentify.segmentifyandroidsdk.utils.Constant
 import com.segmentify.segmentifyandroidsdk.utils.PushInteraction
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyCallback
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyLogger
+import com.segmentify.segmentifyandroidsdk.utils.WishlistValidation
 import java.util.*
 
 
@@ -503,6 +504,46 @@ object SegmentifyManager {
 
 
         EventController.sendAddOrRemoveBasket(basketModel)
+    }
+
+    fun sendWishlist(wishlistModel: WishlistModel) {
+        wishlistModel.eventName = Constant.wishlistEventName
+
+        val error = WishlistValidation.findError(wishlistModel.step, wishlistModel.productId, wishlistModel.favoritesList)
+        if (error != null) {
+            SegmentifyLogger.printErrorLog(error)
+            return
+        }
+
+        wishlistModel.activeBanners = clickedBanners
+
+        EventController.sendWishlist(wishlistModel)
+    }
+
+    fun sendWishlistAdd(productId: String) {
+        sendWishlistProductStep(Constant.wishlistAddStep, productId)
+    }
+
+    fun sendWishlistRemove(productId: String) {
+        sendWishlistProductStep(Constant.wishlistRemoveStep, productId)
+    }
+
+    fun sendWishlistDetail(productId: String) {
+        sendWishlistProductStep(Constant.wishlistDetailStep, productId)
+    }
+
+    fun sendWishlistViewFavorites(favoritesList: List<String>) {
+        val wishlistModel = WishlistModel()
+        wishlistModel.step = Constant.wishlistViewFavoritesStep
+        wishlistModel.favoritesList = favoritesList
+        sendWishlist(wishlistModel)
+    }
+
+    private fun sendWishlistProductStep(step: String, productId: String) {
+        val wishlistModel = WishlistModel()
+        wishlistModel.step = step
+        wishlistModel.productId = productId
+        sendWishlist(wishlistModel)
     }
 
     fun sendPurchase(checkoutModel: CheckoutModel, segmentifyCallback: SegmentifyCallback<ArrayList<RecommendationModel>>) {

@@ -26,6 +26,10 @@ interface EventFactory {
         @POST("/add/events/v1.json")
         fun sendAddOrRemoveBasket(@Body basketModel: BasketModel,@Query("apiKey") apiKey : String): Call<Any>
 
+        //POST WishlistModel Object with steps as defined in documentation
+        @POST("/add/events/v1.json")
+        fun sendWishlist(@Body wishlistModel: WishlistModel,@Query("apiKey") apiKey : String): Call<Any>
+
         //POST ProductModel Object with steps as defined in documentation
         @POST("/add/events/v1.json")
         fun sendProductView(@Body productModel: ProductModel,@Query("apiKey") apiKey : String): Call<EventResponseModel>
