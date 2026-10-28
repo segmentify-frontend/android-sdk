@@ -13,6 +13,7 @@ import com.segmentify.segmentifyandroidsdk.utils.CdpUserProfileStore
 import com.segmentify.segmentifyandroidsdk.utils.ClientPreferences
 import com.segmentify.segmentifyandroidsdk.utils.Constant
 import com.segmentify.segmentifyandroidsdk.utils.PushInteraction
+import com.segmentify.segmentifyandroidsdk.utils.PushResultCallback
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyCallback
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyLogger
 import com.segmentify.segmentifyandroidsdk.utils.WishlistValidation
@@ -887,16 +888,23 @@ object SegmentifyManager {
         segmentifyObject.appVersion = appVersion
     }
 
-    fun sendNotification(notificationModel: NotificationModel) {
+    @JvmOverloads
+    fun sendNotification(notificationModel: NotificationModel, callback: PushResultCallback? = null) {
+        if (clientPreferences == null) {
+            SegmentifyLogger.printErrorLog("SDK is not configured, call SegmentifyManager.config first")
+            callback?.onError("Notification not sent: SDK is not configured, call SegmentifyManager.config first")
+            return
+        }
         if (notificationModel.type == NotificationType.PERMISSION_INFO) {
 
             if (notificationModel.deviceToken.isNullOrEmpty()) {
                 SegmentifyLogger.printErrorLog("You must fill deviceToken before accessing notification event")
+                callback?.onError("Notification not sent: deviceToken is empty")
                 return
             }
         }
         notificationModel.sdkVersion = PushInteraction.registrationSdkVersion(notificationModel.type)
-        PushController.sendNotification(notificationModel)
+        PushController.sendNotification(notificationModel, callback)
     }
 
     fun handlePushReceived(payload: SegmentifyPushPayload) {
