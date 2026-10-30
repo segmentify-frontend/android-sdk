@@ -876,7 +876,24 @@ object SegmentifyManager {
                 return
             }
         }
+        notificationModel.sdkVersion = PushInteraction.registrationSdkVersion(notificationModel.type)
         PushController.sendNotification(notificationModel)
+    }
+
+    fun handlePushReceived(payload: SegmentifyPushPayload) {
+        sendPushInteraction(payload, NotificationType.VIEW)
+    }
+
+    fun handlePushClicked(payload: SegmentifyPushPayload) {
+        sendPushInteraction(payload, NotificationType.CLICK)
+    }
+
+    private fun sendPushInteraction(payload: SegmentifyPushPayload, type: NotificationType) {
+        val instanceId = payload.instanceId ?: return
+        val notificationModel = NotificationModel()
+        notificationModel.type = type
+        notificationModel.instanceId = instanceId
+        sendNotificationInteraction(notificationModel)
     }
 
 

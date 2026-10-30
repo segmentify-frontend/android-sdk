@@ -22,13 +22,11 @@ import androidx.work.WorkerParameters;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.segmentify.segmentifyandroidsdk.SegmentifyManager;
-import com.segmentify.segmentifyandroidsdk.model.NotificationModel;
-import com.segmentify.segmentifyandroidsdk.model.NotificationType;
+import com.segmentify.segmentifyandroidsdk.model.SegmentifyPushPayload;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -41,23 +39,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (!remoteMessage.getData().isEmpty()) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
-            Map<String, String> data = remoteMessage.getData();
+            SegmentifyPushPayload payload = SegmentifyPushPayload.from(remoteMessage.getData());
 
-            String title = data.get("title");
-            String body = data.get("message");
-            String deepLink = data.get("deeplink");
-            String image = data.get("image");
-
-            if (title != null || body != null) {
-                sendNotification(body, title, deepLink, image);
+            if (!payload.getTitle().isEmpty() || !payload.getMessage().isEmpty()) {
+                sendNotification(payload.getMessage(), payload.getTitle(), payload.getTargetUrl(), payload.getImage());
             }
 
-            if (data.containsKey("instanceId")) {
-                NotificationModel model = new NotificationModel();
-                model.setType(NotificationType.VIEW);
-                model.setInstanceId(data.get("instanceId"));
-                SegmentifyManager.INSTANCE.sendNotificationInteraction(model);
-            }
+            SegmentifyManager.INSTANCE.handlePushReceived(payload);
         }
     }
 
