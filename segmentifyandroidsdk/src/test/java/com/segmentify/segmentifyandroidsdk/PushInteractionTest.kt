@@ -1,9 +1,11 @@
 package com.segmentify.segmentifyandroidsdk
 
+import com.segmentify.segmentifyandroidsdk.model.NotificationType
 import com.segmentify.segmentifyandroidsdk.utils.Constant
 import com.segmentify.segmentifyandroidsdk.utils.PushInteraction
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class PushInteractionTest {
@@ -27,5 +29,16 @@ class PushInteractionTest {
     fun pushStepIsPushNotClick() {
         assertEquals("push", Constant.pushStep)
         assertNotEquals(Constant.clickStep, Constant.pushStep)
+    }
+
+    @Test
+    fun permissionInfoContainsSdkVersion() {
+        assertEquals(BuildConfig.SDK_VERSION, PushInteraction.registrationSdkVersion(NotificationType.PERMISSION_INFO))
+    }
+
+    @Test
+    fun interactionsDoNotCarrySdkVersion() {
+        assertNull(PushInteraction.registrationSdkVersion(NotificationType.VIEW))
+        assertNull(PushInteraction.registrationSdkVersion(NotificationType.CLICK))
     }
 }
