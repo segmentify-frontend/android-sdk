@@ -2,14 +2,13 @@ package com.segmentify.segmentifyandroidsdk.network
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.util.Log
 import com.segmentify.segmentifyandroidsdk.SegmentifyManager
 import com.segmentify.segmentifyandroidsdk.network.Factories.EventFactory
 import com.segmentify.segmentifyandroidsdk.network.Factories.PushFactory
 import com.segmentify.segmentifyandroidsdk.network.Factories.UserSessionFactory
-import okhttp3.Interceptor
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -23,6 +22,10 @@ object ConnectionManager {
     private lateinit var pushFactory: PushFactory
     private val client: OkHttpClient
     private val logging = HttpLoggingInterceptor()
+    // Shared Gson for request bodies (fills userId/sessionId of SegmentifyObject)
+    internal val gson: Gson = GsonBuilder()
+            .registerTypeAdapterFactory(SegmentifyObjectAdapterFactory())
+            .create()
 
     init {
         updateLoggingLevel()
@@ -33,42 +36,15 @@ object ConnectionManager {
         // the Authorization header is not captured in logs.
         httpClient.addInterceptor(logging)
 
-        //Gelen response kontrol edilecek
-        httpClient.addInterceptor(Interceptor { chain ->
-            val request = chain?.request()
-            var newRequestBuilder = request?.newBuilder()
-
-            try {
-                val subDomain = SegmentifyManager.configModel.subDomain
-                if (!subDomain.isNullOrEmpty()) {
-                    newRequestBuilder?.addHeader("Origin", subDomain)
-                }
-                newRequestBuilder?.addHeader("Content-Type", "application/json")
-                        ?.addHeader("Accept", "application/json")
-
-                if (!SegmentifyManager.configModel.authHeader.isNullOrEmpty()) {
-                    newRequestBuilder?.addHeader("Authorization", SegmentifyManager.configModel.authHeader!!)
-                } else if (!SegmentifyManager.configModel.apiKey.isNullOrEmpty()) {
-                    val url = request?.url()?.newBuilder()
-                            ?.addQueryParameter("apiKey", SegmentifyManager.configModel.apiKey)
-                            ?.build()
-                    newRequestBuilder?.url(url!!)
-                }
-            } catch (e: Exception) {
-                Log.d("addHeader", "Error")
-                e.printStackTrace()
-                return@Interceptor chain?.proceed(request)!!
-            }
-
-            chain.proceed(newRequestBuilder!!.build())
-        })
+        // Common headers + auth: Basic Authorization header if authHeader is set, otherwise apiKey query param
+        httpClient.addInterceptor(AuthInterceptor { SegmentifyManager.configModel })
         httpClient.connectTimeout(timeoutInterval.toLong(), TimeUnit.SECONDS)
         httpClient.readTimeout(timeoutInterval.toLong(), TimeUnit.SECONDS)
 
         client = httpClient.build()
         val keyService = Retrofit.Builder()
                 .baseUrl(SegmentifyManager.clientPreferences?.getApiUrl())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(client)
                 .build()
 
@@ -76,7 +52,7 @@ object ConnectionManager {
 
         val eventService = Retrofit.Builder()
                 .baseUrl(SegmentifyManager.clientPreferences?.getApiUrl())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(client)
                 .build()
 
@@ -85,7 +61,7 @@ object ConnectionManager {
         if (SegmentifyManager.configModel?.dataCenterUrlPush != null) {
             val pushService = Retrofit.Builder()
                     .baseUrl(SegmentifyManager.configModel?.dataCenterUrlPush)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .client(client)
                     .build()
 
@@ -116,7 +92,7 @@ object ConnectionManager {
     fun rebuildServices() {
         val eventService = Retrofit.Builder()
                 .baseUrl(SegmentifyManager.clientPreferences?.getApiUrl())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(client)
                 .build()
         eventFactory = eventService.create(EventFactory::class.java)
@@ -124,7 +100,7 @@ object ConnectionManager {
         if (SegmentifyManager.configModel?.dataCenterUrlPush != null) {
             val pushService = Retrofit.Builder()
                     .baseUrl(SegmentifyManager.configModel?.dataCenterUrlPush)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .client(client)
                     .build()
             pushFactory = pushService.create(PushFactory::class.java)

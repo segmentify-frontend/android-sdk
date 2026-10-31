@@ -22,7 +22,7 @@ abstract class NetworkCallback<T> : Callback<T> {
                     onError("Request successful but body is null")
                 }
             }
-            else if(response.code() != 200){
+            else {
                 if(call != null && !call.isCanceled) run {
                     SegmentifyLogger.printErrorLog(response.message())
                     if (retryCount++ < TOTAL_RETRIES) {

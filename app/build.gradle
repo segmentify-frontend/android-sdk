@@ -21,6 +21,8 @@ android {
             localProps.load(new FileInputStream(localPropsFile))
         }
         buildConfigField "String", "AUTH_HEADER", "\"${localProps.getProperty('segmentify.authHeader', '')}\""
+        buildConfigField "String", "PUSH_API_URL", "\"${localProps.getProperty('segmentify.pushApiUrl', 'https://push-notification-api.preprod.cloud.unifonic.com')}\""
+        buildConfigField "String", "SUBDOMAIN", "\"${localProps.getProperty('segmentify.subDomain', 'push-sfy-web.int.oci.ruh.dev.unifonic.com')}\""
     }
 
     buildFeatures {

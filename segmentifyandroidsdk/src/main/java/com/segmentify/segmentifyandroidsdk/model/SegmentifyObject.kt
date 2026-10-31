@@ -14,12 +14,16 @@ open class SegmentifyObject{
         set(value) { field = value }
 
     /**
-     * Materializes userId and sessionId from preferences into backing fields
-     * so that Gson (which reads fields via reflection, not getters) includes them.
+     * Copies userId and sessionId into their backing fields so that Gson
+     * (which reads fields, not getters) includes them. Called automatically
+     * for request bodies by SegmentifyObjectAdapterFactory.
      */
     fun resolveIds() {
-        if (userId == null) userId = SegmentifyManager.clientPreferences?.getUserId()
-        if (sessionId == null) sessionId = SegmentifyManager.clientPreferences?.getSessionId()
+        // The getters fall back to preferences; assigning their values stores them in the fields.
+        val currentUserId = userId
+        val currentSessionId = sessionId
+        userId = currentUserId
+        sessionId = currentSessionId
     }
 
     @SerializedName("name")

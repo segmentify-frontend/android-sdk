@@ -19,14 +19,14 @@ internal object PushController {
     fun sendNotification(notificationModel: NotificationModel, callback: PushResultCallback? = null) {
 
         try {
-            if (SegmentifyManager.clientPreferences?.isLogVisible()!!) {
+            if (SegmentifyManager.clientPreferences?.isLogVisible() == true) {
                 SegmentifyLogger.printSuccessLog("Notification Payload : " + Gson().toJson(notificationModel))
             }
 
             ConnectionManager.getPushFactory().sendNotification(notificationModel)
                     .enqueue(object : NetworkCallback<ResponseBody>() {
                         override fun onSuccess(response: ResponseBody) {
-                            if (SegmentifyManager.clientPreferences?.isLogVisible()!!) {
+                            if (SegmentifyManager.clientPreferences?.isLogVisible() == true) {
                                 SegmentifyLogger.printSuccessLog("Notification sent successfully")
                             }
                             response.close()
@@ -47,14 +47,14 @@ internal object PushController {
     fun sendNotificationInteraction(notificationModel: NotificationModel) {
 
         try {
-            if (SegmentifyManager.clientPreferences?.isLogVisible()!!) {
+            if (SegmentifyManager.clientPreferences?.isLogVisible() == true) {
                 SegmentifyLogger.printSuccessLog("Notification Interaction Payload : " + Gson().toJson(notificationModel))
             }
 
             ConnectionManager.getPushFactory().sendNotificationInteraction(notificationModel)
                     .enqueue(object : NetworkCallback<ResponseBody>() {
                         override fun onSuccess(response: ResponseBody) {
-                            if (SegmentifyManager.clientPreferences?.isLogVisible()!!) {
+                            if (SegmentifyManager.clientPreferences?.isLogVisible() == true) {
                                 SegmentifyLogger.printSuccessLog("Notification interaction sent successfully")
                             }
                             response.close()

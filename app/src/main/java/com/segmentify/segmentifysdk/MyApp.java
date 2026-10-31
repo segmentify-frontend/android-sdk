@@ -9,8 +9,9 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         // if you are using push module make sure to call SegmentifyManager.Instance.setPushConfig first
-        SegmentifyManager.INSTANCE.setPushConfig("https://push-notification-api.preprod.cloud.unifonic.com");
-        SegmentifyManager.INSTANCE.config(this, null, "https://push-notification-api.preprod.cloud.unifonic.com", "push-sfy-web.int.oci.ruh.dev.unifonic.com", BuildConfig.AUTH_HEADER);
+        SegmentifyManager.INSTANCE.setPushConfig(BuildConfig.PUSH_API_URL);
+        // Values come from local.properties (segmentify.pushApiUrl, segmentify.subDomain, segmentify.authHeader)
+        SegmentifyManager.INSTANCE.config(this, null, BuildConfig.PUSH_API_URL, BuildConfig.SUBDOMAIN, BuildConfig.AUTH_HEADER);
         SegmentifyManager.INSTANCE.setUserId("-896626520993357823");
         SegmentifyManager.INSTANCE.setSessionKeepSecond(86400);
         SegmentifyManager.INSTANCE.logStatus(true);

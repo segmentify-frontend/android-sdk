@@ -27,10 +27,14 @@ import com.segmentify.segmentifyandroidsdk.model.SegmentifyPushPayload;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    // Loads notification images off the main thread
+    private static final ExecutorService IMAGE_EXECUTOR = Executors.newSingleThreadExecutor();
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -71,7 +75,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void sendNotification(String messageBody, String title, String deepLink, String image, String icon, String instanceId, String correlationId) {
         // Load images on background thread to avoid NetworkOnMainThreadException
-        new Thread(() -> {
+        IMAGE_EXECUTOR.execute(() -> {
             try {
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -156,7 +160,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Log.e(TAG, "Bildirim oluşturulurken hata: " + e.getMessage());
                 e.printStackTrace();
             }
-        }).start();
+        });
     }
 
     private Bitmap getBitmapFromUrl(String imageUrl) {

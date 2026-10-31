@@ -61,7 +61,7 @@ object SegmentifyManager {
     @JvmOverloads
     fun setConfig(apiKey: String?, dataCenterUrl: String?, subDomain: String?, authHeader: String? = null) {
         if ((authHeader.isNullOrBlank() && apiKey.isNullOrBlank()) || dataCenterUrl.isNullOrBlank() || subDomain.isNullOrBlank()) {
-            SegmentifyLogger.printErrorLog("Api is not initialized, you must provide (authHeader or appKey), dataCenterUrl, and subDomain)")
+            SegmentifyLogger.printErrorLog("Api is not initialized, you must provide authHeader or apiKey, dataCenterUrl and subDomain")
             return
         }
         this.configModel.apiKey = apiKey
@@ -87,7 +87,7 @@ object SegmentifyManager {
     fun config(context: Context, appKey: String?, dataCenterUrl: String?, subDomain: String?, authHeader: String? = null) {
 
         if ((authHeader.isNullOrBlank() && appKey.isNullOrBlank()) || dataCenterUrl.isNullOrBlank() || subDomain.isNullOrBlank()) {
-            SegmentifyLogger.printErrorLog("Api is not initialized, you must provide (authHeader or appKey), dataCenterUrl, and subDomain)")
+            SegmentifyLogger.printErrorLog("Api is not initialized, you must provide authHeader or apiKey, dataCenterUrl and subDomain")
             return
         }
 
@@ -598,6 +598,7 @@ object SegmentifyManager {
         })
     }
 
+    @JvmOverloads
     fun sendImpression(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
@@ -625,6 +626,7 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
+    @JvmOverloads
     fun sendWidgetView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
@@ -652,6 +654,7 @@ object SegmentifyManager {
         EventController.sendInteractionEvent(interactionModel)
     }
 
+    @JvmOverloads
     fun sendClickView(instanceId: String, interactionId: String, correlationId: String? = null) {
         var interactionModel = InteractionModel()
         interactionModel.eventName = Constant.interactionEventName
@@ -929,6 +932,10 @@ object SegmentifyManager {
 
 
     fun sendNotificationInteraction(notificationModel: NotificationModel) {
+        if (clientPreferences == null) {
+            SegmentifyLogger.printErrorLog("SDK is not configured, call SegmentifyManager.config first")
+            return
+        }
         notificationModel.correlationId = PushInteraction.normalizeCorrelationId(notificationModel.correlationId)
 
         if (notificationModel.type == NotificationType.VIEW) {
@@ -940,7 +947,7 @@ object SegmentifyManager {
 
         if (notificationModel.type == NotificationType.CLICK) {
             if (notificationModel.instanceId.isNullOrEmpty()) {
-                SegmentifyLogger.printErrorLog("You must fill deviceToken before accessing notification click event")
+                SegmentifyLogger.printErrorLog("You must fill instanceId before accessing notification click event")
                 return
             } else {
                 clientPreferences?.setPushCampaignId(notificationModel.instanceId!!)
