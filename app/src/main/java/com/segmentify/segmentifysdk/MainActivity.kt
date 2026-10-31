@@ -42,11 +42,14 @@ class MainActivity : AppCompatActivity() {
 
         if (intent.hasExtra("instanceId")) {
             val instanceId = intent.getStringExtra("instanceId")
+            val correlationId = intent.getStringExtra("correlationId")
             intent.removeExtra("instanceId")
+            intent.removeExtra("correlationId")
             if (!instanceId.isNullOrEmpty()) {
                 val model = NotificationModel()
                 model.type = NotificationType.CLICK
                 model.instanceId = instanceId
+                model.correlationId = correlationId
                 SegmentifyManager.sendNotificationInteraction(model)
             }
         }

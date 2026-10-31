@@ -120,4 +120,11 @@ class SegmentifyPushPayloadTest {
 
         assertEquals("https://shop.example.com/sale", payload.targetUrl)
     }
+
+    @Test
+    fun correlationIdIsReadAndBlankIsMissing() {
+        assertEquals("corr-1", SegmentifyPushPayload.from(mapOf("instanceId" to "ins-1", "correlationId" to "corr-1")).correlationId)
+        assertNull(SegmentifyPushPayload.from(mapOf("instanceId" to "ins-1", "correlationId" to "")).correlationId)
+        assertNull(SegmentifyPushPayload.from(mapOf("instanceId" to "ins-1")).correlationId)
+    }
 }

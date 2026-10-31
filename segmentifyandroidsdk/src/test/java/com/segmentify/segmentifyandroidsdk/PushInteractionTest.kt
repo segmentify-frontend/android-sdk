@@ -28,6 +28,25 @@ class PushInteractionTest {
     }
 
     @Test
+    fun correlationIdIsReadFromPushData() {
+        assertEquals("corr-1", PushInteraction.correlationIdFrom(mapOf("instanceId" to "psh_abc", "correlationId" to "corr-1")))
+    }
+
+    @Test
+    fun emptyCorrelationIdFromPushSenderIsTreatedAsMissing() {
+        assertNull(PushInteraction.correlationIdFrom(mapOf("instanceId" to "psh_abc", "correlationId" to "")))
+        assertNull(PushInteraction.correlationIdFrom(mapOf("instanceId" to "psh_abc")))
+        assertNull(PushInteraction.correlationIdFrom(null))
+    }
+
+    @Test
+    fun normalizeCorrelationIdKeepsValuesAndDropsBlanks() {
+        assertEquals("corr-1", PushInteraction.normalizeCorrelationId("corr-1"))
+        assertNull(PushInteraction.normalizeCorrelationId(" "))
+        assertNull(PushInteraction.normalizeCorrelationId(null))
+    }
+
+    @Test
     fun pushStepIsPushNotClick() {
         assertEquals("push", Constant.pushStep)
         assertNotEquals(Constant.clickStep, Constant.pushStep)

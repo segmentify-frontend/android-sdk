@@ -908,22 +908,28 @@ object SegmentifyManager {
     }
 
     fun handlePushReceived(payload: SegmentifyPushPayload) {
-        PushInteraction.onPushReceived(payload, ::sendPushInteraction)
+        PushInteraction.onPushReceived(payload) { type, instanceId ->
+            sendPushInteraction(type, instanceId, payload.correlationId)
+        }
     }
 
     fun handlePushClicked(payload: SegmentifyPushPayload) {
-        PushInteraction.onPushClicked(payload, ::sendPushInteraction)
+        PushInteraction.onPushClicked(payload) { type, instanceId ->
+            sendPushInteraction(type, instanceId, payload.correlationId)
+        }
     }
 
-    private fun sendPushInteraction(type: NotificationType, instanceId: String) {
+    private fun sendPushInteraction(type: NotificationType, instanceId: String, correlationId: String?) {
         val notificationModel = NotificationModel()
         notificationModel.type = type
         notificationModel.instanceId = instanceId
+        notificationModel.correlationId = correlationId
         sendNotificationInteraction(notificationModel)
     }
 
 
     fun sendNotificationInteraction(notificationModel: NotificationModel) {
+        notificationModel.correlationId = PushInteraction.normalizeCorrelationId(notificationModel.correlationId)
 
         if (notificationModel.type == NotificationType.VIEW) {
             if (notificationModel.instanceId.isNullOrEmpty()) {

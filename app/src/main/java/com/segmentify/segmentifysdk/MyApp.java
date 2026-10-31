@@ -11,7 +11,7 @@ public class MyApp extends Application {
         // if you are using push module make sure to call SegmentifyManager.Instance.setPushConfig first
         SegmentifyManager.INSTANCE.setPushConfig("https://push-notification-api.preprod.cloud.unifonic.com");
         SegmentifyManager.INSTANCE.config(this, null, "https://push-notification-api.preprod.cloud.unifonic.com", "push-sfy-web.int.oci.ruh.dev.unifonic.com", BuildConfig.AUTH_HEADER);
-        SegmentifyManager.INSTANCE.setUserId("2");
+        SegmentifyManager.INSTANCE.setUserId("-896626520993357823");
         SegmentifyManager.INSTANCE.setSessionKeepSecond(86400);
         SegmentifyManager.INSTANCE.logStatus(true);
     }

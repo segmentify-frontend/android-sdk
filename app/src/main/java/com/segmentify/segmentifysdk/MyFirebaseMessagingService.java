@@ -42,9 +42,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             SegmentifyPushPayload payload = SegmentifyPushPayload.from(remoteMessage.getData());
 
             if (!payload.getTitle().isEmpty() || !payload.getMessage().isEmpty()) {
-                sendNotification(payload.getMessage(), payload.getTitle(), payload.getTargetUrl(), payload.getImage(), payload.getIcon(), payload.getInstanceId());
+                sendNotification(payload.getMessage(), payload.getTitle(), payload.getTargetUrl(), payload.getImage(), payload.getIcon(), payload.getInstanceId(), payload.getCorrelationId());
             }
 
+            // Sends VIEW with instanceId and correlationId (if the push has an instanceId)
             SegmentifyManager.INSTANCE.handlePushReceived(payload);
         }
     }
@@ -68,7 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // TODO: Implement this method to send token to your app server.
     }
 
-    private void sendNotification(String messageBody, String title, String deepLink, String image, String icon, String instanceId) {
+    private void sendNotification(String messageBody, String title, String deepLink, String image, String icon, String instanceId, String correlationId) {
         // Load images on background thread to avoid NetworkOnMainThreadException
         new Thread(() -> {
             try {
@@ -85,6 +86,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 if (instanceId != null && !instanceId.isEmpty()) {
                     intent.putExtra("instanceId", instanceId);
+                }
+
+                if (correlationId != null) {
+                    intent.putExtra("correlationId", correlationId);
                 }
 
                 int requestCode = (int) System.currentTimeMillis();

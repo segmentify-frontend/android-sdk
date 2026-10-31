@@ -2,6 +2,7 @@ package com.segmentify.segmentifyandroidsdk.model
 
 import android.os.Build
 import com.segmentify.segmentifyandroidsdk.SegmentifyManager
+import com.segmentify.segmentifyandroidsdk.utils.PushInteraction
 
 class NotificationModel{
 
@@ -32,6 +33,21 @@ class NotificationModel{
             userId = userId_
         }
 
+    }
+
+    companion object {
+        /**
+         * Builds a VIEW/CLICK model from a Segmentify push's data map (RemoteMessage.getData()),
+         * copying instanceId and correlationId so shown/clicked can be tied to the send request.
+         */
+        @JvmStatic
+        fun fromPushData(data: Map<String, String?>?, type: NotificationType): NotificationModel {
+            val model = NotificationModel()
+            model.type = type
+            model.instanceId = data?.get("instanceId")
+            model.correlationId = PushInteraction.correlationIdFrom(data)
+            return model
+        }
     }
 
 }
