@@ -14,15 +14,20 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // Read auth header from local.properties; fall back to empty string
+        // Demo app config. Defaults are the original Segmentify demo values;
+        // override them locally in local.properties (never committed), e.g.
+        //   segmentify.authHeader=<base64 user:password>
+        //   segmentify.pushApiUrl=... / segmentify.dataCenterUrl=... / segmentify.subDomain=...
         def localProps = new Properties()
         def localPropsFile = rootProject.file('local.properties')
         if (localPropsFile.exists()) {
-            localProps.load(new FileInputStream(localPropsFile))
+            localPropsFile.withInputStream { localProps.load(it) }
         }
+        buildConfigField "String", "API_KEY", "\"${localProps.getProperty('segmentify.apiKey', '3c9e211a-d049-43d5-aa4a-f98b7e66e482')}\""
         buildConfigField "String", "AUTH_HEADER", "\"${localProps.getProperty('segmentify.authHeader', '')}\""
-        buildConfigField "String", "PUSH_API_URL", "\"${localProps.getProperty('segmentify.pushApiUrl', 'https://push-notification-api.preprod.cloud.unifonic.com')}\""
-        buildConfigField "String", "SUBDOMAIN", "\"${localProps.getProperty('segmentify.subDomain', 'push-sfy-web.int.oci.ruh.dev.unifonic.com')}\""
+        buildConfigField "String", "DATA_CENTER_URL", "\"${localProps.getProperty('segmentify.dataCenterUrl', 'https://gandalf.segmentify.com')}\""
+        buildConfigField "String", "PUSH_API_URL", "\"${localProps.getProperty('segmentify.pushApiUrl', 'https://psh2.segmentify.com')}\""
+        buildConfigField "String", "SUBDOMAIN", "\"${localProps.getProperty('segmentify.subDomain', 'demosfy.com')}\""
     }
 
     buildFeatures {

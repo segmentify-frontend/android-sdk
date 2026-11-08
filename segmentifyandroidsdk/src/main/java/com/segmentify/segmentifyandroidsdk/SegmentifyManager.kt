@@ -8,6 +8,7 @@ import com.segmentify.segmentifyandroidsdk.model.*
 import com.segmentify.segmentifyandroidsdk.model.faceted.SearchFacetedPageModel
 import com.segmentify.segmentifyandroidsdk.model.faceted.SearchFacetedResponseModel
 import com.segmentify.segmentifyandroidsdk.network.ConnectionManager
+import com.segmentify.segmentifyandroidsdk.network.HttpLogging
 import com.segmentify.segmentifyandroidsdk.utils.CdpConsent
 import com.segmentify.segmentifyandroidsdk.utils.CdpUserProfileStore
 import com.segmentify.segmentifyandroidsdk.utils.ClientPreferences
@@ -80,7 +81,8 @@ object SegmentifyManager {
 
     fun logStatus(isVisible: Boolean) {
         clientPreferences?.setLogVisible(isVisible)
-        ConnectionManager.updateLoggingLevel()
+        // Must not touch ConnectionManager here: before config() it has no API URL yet
+        HttpLogging.update()
     }
 
     @JvmOverloads

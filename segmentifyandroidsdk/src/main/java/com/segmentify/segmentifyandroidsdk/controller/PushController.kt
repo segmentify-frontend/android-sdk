@@ -1,4 +1,4 @@
-﻿package com.segmentify.segmentifyandroidsdk.controller
+package com.segmentify.segmentifyandroidsdk.controller
 
 import com.google.gson.Gson
 import com.segmentify.segmentifyandroidsdk.SegmentifyManager

@@ -9,7 +9,6 @@ import com.segmentify.segmentifyandroidsdk.network.Factories.UserSessionFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -21,20 +20,19 @@ object ConnectionManager {
     private var eventFactory: EventFactory
     private lateinit var pushFactory: PushFactory
     private val client: OkHttpClient
-    private val logging = HttpLoggingInterceptor()
     // Shared Gson for request bodies (fills userId/sessionId of SegmentifyObject)
     internal val gson: Gson = GsonBuilder()
             .registerTypeAdapterFactory(SegmentifyObjectAdapterFactory())
             .create()
 
     init {
-        updateLoggingLevel()
+        HttpLogging.update()
 
         val httpClient = OkHttpClient.Builder()
 
         // Add logging interceptor before the auth interceptor so that
         // the Authorization header is not captured in logs.
-        httpClient.addInterceptor(logging)
+        httpClient.addInterceptor(HttpLogging.interceptor)
 
         // Common headers + auth: Basic Authorization header if authHeader is set, otherwise apiKey query param
         httpClient.addInterceptor(AuthInterceptor { SegmentifyManager.configModel })
@@ -66,14 +64,6 @@ object ConnectionManager {
                     .build()
 
             pushFactory = pushService.create(PushFactory::class.java)
-        }
-    }
-
-    fun updateLoggingLevel() {
-        logging.level = if (SegmentifyManager.clientPreferences?.isLogVisible() == true) {
-            HttpLoggingInterceptor.Level.BODY
-        } else {
-            HttpLoggingInterceptor.Level.NONE
         }
     }
 

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "530499985755",
-    "project_id": "segmentify-9f1b9",
-    "storage_bucket": "segmentify-9f1b9.firebasestorage.app"
+    "project_number": "602761832656",
+    "project_id": "spm-ios-push-segmentify",
+    "storage_bucket": "spm-ios-push-segmentify.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:530499985755:android:7e4f69d751412740f4fa7e",
+        "mobilesdk_app_id": "1:602761832656:android:fe879c4a931edf2171d6d5",
         "android_client_info": {
           "package_name": "com.segmentify.segmentifysdk"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD0bfwzLHVPKvvxMwORwIi6wE2DvTWPCQo"
+          "current_key": "AIzaSyCsBHuGW-Gn6IjJc6RQIJBnRNQEFw_pCy0"
         }
       ],
       "services": {
