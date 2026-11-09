@@ -17,6 +17,7 @@ data class SegmentifyPushPayload(
     val title: String = "",
     val message: String = "",
     val image: String? = null,
+    val icon: String? = null,
     val redirectUrl: String? = null,
     val deeplink: String? = null,
     val tag: String? = null,
@@ -24,7 +25,8 @@ data class SegmentifyPushPayload(
     val apiKey: String? = null,
     val dataCenterUrl: String? = null,
     val userId: String? = null,
-    val actions: List<SegmentifyPushAction> = emptyList()
+    val actions: List<SegmentifyPushAction> = emptyList(),
+    val actionUrls: List<String> = emptyList()
 ) {
 
     val isV2: Boolean
@@ -44,6 +46,7 @@ data class SegmentifyPushPayload(
                 title = value("title") ?: "",
                 message = value("message") ?: "",
                 image = value("image"),
+                icon = value("icon"),
                 redirectUrl = value("redirectUrl"),
                 deeplink = value("deeplink"),
                 tag = value("tag"),
@@ -51,11 +54,12 @@ data class SegmentifyPushPayload(
                 apiKey = value("apiKey"),
                 dataCenterUrl = value("dataCenterUrl"),
                 userId = value("userId"),
-                actions = parseActions(value("actions"))
+                actions = parseArray(value("actions")).mapNotNull { toAction(it) },
+                actionUrls = parseArray(value("actionUrls")).mapNotNull { toUrl(it) }
             )
         }
 
-        private fun parseActions(json: String?): List<SegmentifyPushAction> {
+        private fun parseArray(json: String?): List<JsonElement> {
             if (json == null) return emptyList()
             val array = try {
                 JsonParser.parseString(json)
@@ -63,7 +67,12 @@ data class SegmentifyPushPayload(
                 return emptyList()
             }
             if (!array.isJsonArray) return emptyList()
-            return array.asJsonArray.mapNotNull { toAction(it) }
+            return array.asJsonArray.toList()
+        }
+
+        private fun toUrl(element: JsonElement): String? {
+            if (!element.isJsonPrimitive || !element.asJsonPrimitive.isString) return null
+            return element.asString.takeIf { it.isNotBlank() }
         }
 
         private fun toAction(element: JsonElement): SegmentifyPushAction? {

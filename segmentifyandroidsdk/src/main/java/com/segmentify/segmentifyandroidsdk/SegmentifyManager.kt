@@ -881,15 +881,14 @@ object SegmentifyManager {
     }
 
     fun handlePushReceived(payload: SegmentifyPushPayload) {
-        sendPushInteraction(payload, NotificationType.VIEW)
+        PushInteraction.onPushReceived(payload, ::sendPushInteraction)
     }
 
     fun handlePushClicked(payload: SegmentifyPushPayload) {
-        sendPushInteraction(payload, NotificationType.CLICK)
+        PushInteraction.onPushClicked(payload, ::sendPushInteraction)
     }
 
-    private fun sendPushInteraction(payload: SegmentifyPushPayload, type: NotificationType) {
-        val instanceId = payload.instanceId ?: return
+    private fun sendPushInteraction(type: NotificationType, instanceId: String) {
         val notificationModel = NotificationModel()
         notificationModel.type = type
         notificationModel.instanceId = instanceId

@@ -39,6 +39,7 @@ class SegmentifyPushPayloadTest {
         assertEquals("Summer sale", payload.title)
         assertEquals("Up to 50% off", payload.message)
         assertEquals("https://cdn.example.com/sale.png", payload.image)
+        assertEquals("https://cdn.example.com/logo.png", payload.icon)
         assertEquals("https://shop.example.com/sale", payload.redirectUrl)
         assertEquals("app://sale-android", payload.deeplink)
         assertEquals("ins-1", payload.instanceId)
@@ -48,6 +49,7 @@ class SegmentifyPushPayloadTest {
             listOf(SegmentifyPushAction(action = "action0", title = "Open", redirectUrl = "https://shop.example.com/open")),
             payload.actions
         )
+        assertEquals(listOf("https://shop.example.com/open?_sgm_campaign=ins-1"), payload.actionUrls)
     }
 
     @Test
@@ -67,7 +69,15 @@ class SegmentifyPushPayloadTest {
         val payload = SegmentifyPushPayload.from(fixture("malformed-actions.json"))
 
         assertEquals(emptyList<SegmentifyPushAction>(), payload.actions)
+        assertEquals(emptyList<String>(), payload.actionUrls)
         assertEquals("Summer sale", payload.title)
+    }
+
+    @Test
+    fun actionUrlsSkipNonStringAndBlankItems() {
+        val payload = SegmentifyPushPayload.from(mapOf("actionUrls" to "[\"https://a.example.com\", 1, null, \"\", {\"x\":1}]"))
+
+        assertEquals(listOf("https://a.example.com"), payload.actionUrls)
     }
 
     @Test
@@ -83,7 +93,9 @@ class SegmentifyPushPayloadTest {
         assertEquals("", payload.message)
         assertNull(payload.instanceId)
         assertNull(payload.targetUrl)
+        assertNull(payload.icon)
         assertEquals(emptyList<SegmentifyPushAction>(), payload.actions)
+        assertEquals(emptyList<String>(), payload.actionUrls)
     }
 
     @Test
