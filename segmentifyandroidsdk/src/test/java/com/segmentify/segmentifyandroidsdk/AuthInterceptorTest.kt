@@ -39,10 +39,10 @@ class AuthInterceptorTest {
     }
 
     @Test
-    fun authHeader_sendsBasicAuthorization_andNoApiKey() {
+    fun authHeader_sendsAuthorizationAsIs_andNoApiKey() {
         val recorded = send(ConfigModel().apply {
             apiKey = "legacy-key"
-            authHeader = "dG9rZW4="
+            authHeader = "Basic dG9rZW4="
         })
 
         assertEquals("Basic dG9rZW4=", recorded.getHeader("Authorization"))
@@ -51,10 +51,10 @@ class AuthInterceptorTest {
     }
 
     @Test
-    fun authHeaderWithScheme_isSentAsIs() {
-        val recorded = send(ConfigModel().apply { authHeader = "Basic dG9rZW4=" })
+    fun authHeaderWithoutScheme_isNotPrefixed() {
+        val recorded = send(ConfigModel().apply { authHeader = "dG9rZW4=" })
 
-        assertEquals("Basic dG9rZW4=", recorded.getHeader("Authorization"))
+        assertEquals("dG9rZW4=", recorded.getHeader("Authorization"))
     }
 
     @Test
@@ -97,12 +97,12 @@ class AuthInterceptorTest {
     }
 
     @Test
-    fun authorizationValue_handlesRawPrefixedAndBlankValues() {
-        assertEquals("Basic abc", AuthInterceptor.authorizationValue("abc"))
-        assertEquals("Basic abc", AuthInterceptor.authorizationValue("  abc  "))
+    fun authorizationValue_returnsValueAsIs_orNullWhenBlank() {
+        assertEquals("abc", AuthInterceptor.authorizationValue("abc"))
         assertEquals("Basic abc", AuthInterceptor.authorizationValue("Basic abc"))
         assertEquals("Bearer abc", AuthInterceptor.authorizationValue("Bearer abc"))
         assertNull(AuthInterceptor.authorizationValue(""))
+        assertNull(AuthInterceptor.authorizationValue("   "))
         assertNull(AuthInterceptor.authorizationValue(null))
     }
 }

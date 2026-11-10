@@ -16,7 +16,7 @@ android {
 
         // Demo app config. Defaults are the original Segmentify demo values;
         // override them locally in local.properties (never committed), e.g.
-        //   segmentify.authHeader=<base64 user:password>
+        //   segmentify.authHeader=Basic <base64 user:password>   (sent as is)
         //   segmentify.pushApiUrl=... / segmentify.dataCenterUrl=... / segmentify.subDomain=...
         def localProps = new Properties()
         def localPropsFile = rootProject.file('local.properties')

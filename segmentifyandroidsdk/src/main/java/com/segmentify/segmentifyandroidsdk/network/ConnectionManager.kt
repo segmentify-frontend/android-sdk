@@ -34,7 +34,7 @@ object ConnectionManager {
         // the Authorization header is not captured in logs.
         httpClient.addInterceptor(HttpLogging.interceptor)
 
-        // Common headers + auth: Basic Authorization header if authHeader is set, otherwise apiKey query param
+        // Common headers + auth: Authorization header (authHeader as is) if set, otherwise apiKey query param
         httpClient.addInterceptor(AuthInterceptor { SegmentifyManager.configModel })
         httpClient.connectTimeout(timeoutInterval.toLong(), TimeUnit.SECONDS)
         httpClient.readTimeout(timeoutInterval.toLong(), TimeUnit.SECONDS)

@@ -8,7 +8,8 @@ import okhttp3.Response
 /**
  * Adds the common headers and the authentication to every SDK request.
  *
- * - authHeader set: "Authorization: Basic <token>" and no apiKey query parameter
+ * - authHeader set: "Authorization: <authHeader>" exactly as configured (e.g. "Basic <token>"),
+ *   and no apiKey query parameter
  *   (Unifonic push-notification-api)
  * - otherwise:      "?apiKey=<apiKey>" as in the original Segmentify setup
  */
@@ -45,15 +46,14 @@ internal class AuthInterceptor(private val configProvider: () -> ConfigModel?) :
 
     companion object {
         /**
-         * Returns the Authorization header value for the configured authHeader.
-         * A raw token gets the "Basic " prefix; a value that already has a scheme
-         * (e.g. "Basic xxx") is used as is. Blank values return null.
+         * Returns the Authorization header value: the configured authHeader exactly
+         * as given, with no scheme added or removed (so pass e.g. "Basic <token>").
+         * Null or blank values return null, so the apiKey query parameter is used.
          */
         @JvmStatic
         fun authorizationValue(authHeader: String?): String? {
-            val value = authHeader?.trim()
-            if (value.isNullOrEmpty()) return null
-            return if (value.contains(' ')) value else "Basic $value"
+            if (authHeader.isNullOrBlank()) return null
+            return authHeader
         }
     }
 }
