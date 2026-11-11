@@ -9,13 +9,11 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         // if you are using push module make sure to call SegmentifyManager.Instance.setPushConfig first
-        SegmentifyManager.INSTANCE.setPushConfig("https://psh2.segmentify.com");
-        SegmentifyManager.INSTANCE.config(this, "3c9e211a-d049-43d5-aa4a-f98b7e66e482", "https://gandalf.segmentify.com", "demosfy.com");
+        // Defaults are the original Segmentify demo values. To test another environment,
+        // override segmentify.* keys in local.properties (see app/build.gradle).
+        SegmentifyManager.INSTANCE.setPushConfig(BuildConfig.PUSH_API_URL);
+        SegmentifyManager.INSTANCE.config(this, BuildConfig.API_KEY, BuildConfig.DATA_CENTER_URL, BuildConfig.SUBDOMAIN, BuildConfig.AUTH_HEADER);
         SegmentifyManager.INSTANCE.setSessionKeepSecond(86400);
         SegmentifyManager.INSTANCE.logStatus(true);
     }
 }
-
-
-
-

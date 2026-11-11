@@ -47,7 +47,11 @@ internal object KeyController {
         ConnectionManager.getUserSessionFactory().getUserIdAndSession(2)
             .enqueue(object : NetworkCallback<ArrayList<String>>() {
                 override fun onSuccess(response: ArrayList<String>) {
-                    SegmentifyManager.clientPreferences?.setUserId(response[0])
+                    // Only use the server-generated userId if the app hasn't set one
+                    // (e.g. via SegmentifyManager.setUserId) while this request was in flight.
+                    if (SegmentifyManager.clientPreferences?.getUserId().isNullOrBlank()) {
+                        SegmentifyManager.clientPreferences?.setUserId(response[0])
+                    }
                     SegmentifyManager.clientPreferences?.setSessionId(response[1])
                 }
             })

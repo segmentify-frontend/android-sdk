@@ -13,10 +13,26 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Demo app config. Defaults are the original Segmentify demo values;
+        // override them locally in local.properties (never committed), e.g.
+        //   segmentify.authHeader=Basic <base64 user:password>   (sent as is)
+        //   segmentify.pushApiUrl=... / segmentify.dataCenterUrl=... / segmentify.subDomain=...
+        def localProps = new Properties()
+        def localPropsFile = rootProject.file('local.properties')
+        if (localPropsFile.exists()) {
+            localPropsFile.withInputStream { localProps.load(it) }
+        }
+        buildConfigField "String", "API_KEY", "\"${localProps.getProperty('segmentify.apiKey', '3c9e211a-d049-43d5-aa4a-f98b7e66e482')}\""
+        buildConfigField "String", "AUTH_HEADER", "\"${localProps.getProperty('segmentify.authHeader', '')}\""
+        buildConfigField "String", "DATA_CENTER_URL", "\"${localProps.getProperty('segmentify.dataCenterUrl', 'https://gandalf.segmentify.com')}\""
+        buildConfigField "String", "PUSH_API_URL", "\"${localProps.getProperty('segmentify.pushApiUrl', 'https://psh2.segmentify.com')}\""
+        buildConfigField "String", "SUBDOMAIN", "\"${localProps.getProperty('segmentify.subDomain', 'demosfy.com')}\""
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     buildTypes {

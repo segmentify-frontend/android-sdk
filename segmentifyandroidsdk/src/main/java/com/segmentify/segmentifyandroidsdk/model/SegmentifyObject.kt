@@ -5,8 +5,26 @@ import com.segmentify.segmentifyandroidsdk.BuildConfig
 import com.segmentify.segmentifyandroidsdk.SegmentifyManager
 
 open class SegmentifyObject{
-    var userId : String? = SegmentifyManager.clientPreferences?.getUserId()
-    var sessionId : String? = SegmentifyManager.clientPreferences?.getSessionId()
+    var userId : String? = null
+        get() = field ?: SegmentifyManager.clientPreferences?.getUserId()
+        set(value) { field = value }
+
+    var sessionId : String? = null
+        get() = field ?: SegmentifyManager.clientPreferences?.getSessionId()
+        set(value) { field = value }
+
+    /**
+     * Copies userId and sessionId into their backing fields so that Gson
+     * (which reads fields, not getters) includes them. Called automatically
+     * for request bodies by SegmentifyObjectAdapterFactory.
+     */
+    fun resolveIds() {
+        // The getters fall back to preferences; assigning their values stores them in the fields.
+        val currentUserId = userId
+        val currentSessionId = sessionId
+        userId = currentUserId
+        sessionId = currentSessionId
+    }
 
     @SerializedName("name")
     var eventName : String? = null

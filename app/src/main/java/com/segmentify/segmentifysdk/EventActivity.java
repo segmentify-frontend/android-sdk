@@ -26,6 +26,7 @@ import com.segmentify.segmentifyandroidsdk.model.NotificationModel;
 import com.segmentify.segmentifyandroidsdk.model.NotificationType;
 import com.segmentify.segmentifyandroidsdk.model.PageModel;
 import com.segmentify.segmentifyandroidsdk.model.ProductModel;
+import com.segmentify.segmentifyandroidsdk.utils.PushResultCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -188,9 +189,20 @@ public class EventActivity extends AppCompatActivity {
                     NotificationModel nModel = new NotificationModel();
                     nModel.setDeviceToken(token);
                     nModel.setType(NotificationType.PERMISSION_INFO);
-                    SegmentifyManager.INSTANCE.sendNotification(nModel);
                     Log.d(TAG, "FCM Registration token: " + token);
-                    Toast.makeText(this, "Push registered", Toast.LENGTH_SHORT).show();
+                    SegmentifyManager.INSTANCE.sendNotification(nModel, new PushResultCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(TAG, "Push registration succeeded");
+                            Toast.makeText(EventActivity.this, "Push registration succeeded", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            Log.e(TAG, "Push registration failed: " + message);
+                            Toast.makeText(EventActivity.this, "Push registration failed: " + message, Toast.LENGTH_LONG).show();
+                        }
+                    });
                 });
     }
 

@@ -25,6 +25,8 @@ data class SegmentifyPushPayload(
     val apiKey: String? = null,
     val dataCenterUrl: String? = null,
     val userId: String? = null,
+    // push-sender sends "" when there is none; value() treats blank as missing
+    val correlationId: String? = null,
     val actions: List<SegmentifyPushAction> = emptyList(),
     val actionUrls: List<String> = emptyList()
 ) {
@@ -54,6 +56,7 @@ data class SegmentifyPushPayload(
                 apiKey = value("apiKey"),
                 dataCenterUrl = value("dataCenterUrl"),
                 userId = value("userId"),
+                correlationId = value("correlationId"),
                 actions = parseArray(value("actions")).mapNotNull { toAction(it) },
                 actionUrls = parseArray(value("actionUrls")).mapNotNull { toUrl(it) }
             )
