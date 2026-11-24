@@ -74,4 +74,39 @@ class PushInteractionTest {
         assertTrue(recorded(PushInteraction::onPushReceived, blank).isEmpty())
         assertTrue(recorded(PushInteraction::onPushClicked, blank).isEmpty())
     }
+
+    @Test
+    fun registrationSendsSupportsActionsAfterEnable() {
+        assertEquals(true, PushInteraction.registrationSupportsActions(NotificationType.PERMISSION_INFO, true))
+    }
+
+    @Test
+    fun registrationHasNoSupportsActionsWithoutEnable() {
+        assertNull(PushInteraction.registrationSupportsActions(NotificationType.PERMISSION_INFO, false))
+    }
+
+    @Test
+    fun interactionsDoNotCarrySupportsActions() {
+        assertNull(PushInteraction.registrationSupportsActions(NotificationType.VIEW, true))
+        assertNull(PushInteraction.registrationSupportsActions(NotificationType.CLICK, true))
+    }
+
+    @Test
+    fun actionClickSendsClickWithActionIdInParams() {
+        val payload = SegmentifyPushPayload.from(mapOf("instanceId" to "ins-1", "sgmVersion" to "2"))
+        val sent = mutableListOf<Triple<NotificationType, String, Map<String, String>>>()
+
+        PushInteraction.onPushActionClicked(payload, "action1") { type, instanceId, params -> sent.add(Triple(type, instanceId, params)) }
+
+        assertEquals(listOf(Triple(NotificationType.CLICK, "ins-1", mapOf("actionId" to "action1"))), sent)
+    }
+
+    @Test
+    fun actionClickSendsNothingWithoutInstanceId() {
+        val sent = mutableListOf<String>()
+
+        PushInteraction.onPushActionClicked(SegmentifyPushPayload.from(emptyMap()), "action0") { _, instanceId, _ -> sent.add(instanceId) }
+
+        assertTrue(sent.isEmpty())
+    }
 }
