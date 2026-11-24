@@ -1,0 +1,21 @@
+{
+  "name": "android-sdk-docs",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.38.2",
+    "@fontsource/geist-mono": "5.2.7",
+    "@fontsource/geist-sans": "5.2.5",
+    "astro": "^6.0.1",
+    "sharp": "^0.34.2",
+    "starlight-theme-black": "0.6.0"
+  }
+}

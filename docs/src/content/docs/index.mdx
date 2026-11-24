@@ -1,0 +1,53 @@
+---
+title: "Segmentify Android SDK"
+description: "Send events and show recommendations, search results and push notifications in your Android app with the Segmentify Android SDK."
+template: splash
+hero:
+  tagline: Track what your users do, and show personalised recommendations, search and push notifications in your Android app.
+  actions:
+    - text: Get Started
+      link: /getting-started/installation/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/segmentify/android-sdk
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## What the SDK does
+
+<CardGrid>
+  <Card title="Tracks events" icon="rocket">
+    Page and product views, basket and checkout steps, wishlist, search and
+    user events, each with one method call.
+  </Card>
+  <Card title="Returns recommendations" icon="star">
+    Event methods hand back the recommendation widgets set up in your
+    Segmentify panel, ready for you to render.
+  </Card>
+  <Card title="Powers search" icon="magnifier">
+    Instant search and faceted search results, with click tracking.
+  </Card>
+  <Card title="Reports push notifications" icon="email">
+    Registers device tokens and reports views and clicks of push campaigns.
+  </Card>
+</CardGrid>
+
+## Start here
+
+<CardGrid>
+  <LinkCard title="Installation" description="Add the SDK to your project." href="/getting-started/installation/" />
+  <LinkCard title="Configuration" description="Initialise the SDK with your account." href="/getting-started/configuration/" />
+  <LinkCard title="Your first integration" description="Screen by screen: what to send and when." href="/getting-started/first-integration/" />
+  <LinkCard title="Troubleshooting" description="When an event does not arrive." href="/troubleshooting/" />
+</CardGrid>
+
+## Related documentation
+
+<CardGrid>
+  <LinkCard title="API Docs" description="The REST API behind the SDK: fields, types and status codes." href="https://api-docs.segmentify.com/" />
+  <LinkCard title="iOS SDK" description="The same integration on the other platform." href="https://ios-sdk-docs.segmentify.com/" />
+  <LinkCard title="React Native SDK" description="For React Native apps." href="https://rn-docs.segmentify.com/" />
+</CardGrid>
