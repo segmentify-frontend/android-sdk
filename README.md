@@ -6,7 +6,7 @@ Segmentify  SDK for sending events and rendering recommendations for android bas
 
 ## Documentation
 
-The full documentation (installation, events, recommendations, search, push notifications and troubleshooting) is at [android-docs.segmentify.com](https://android-docs.segmentify.com/). Its source is in the [`docs/`](docs/) folder of this repository.
+The full documentation (installation, events, recommendations, search, push notifications and troubleshooting) is at [android-sdk-docs.segmentify.com](https://android-sdk-docs.segmentify.com/). Its source is in the [`docs/`](docs/) folder of this repository.
 
 ## Installation
 
