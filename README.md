@@ -4,6 +4,10 @@ Segmentify  SDK for sending events and rendering recommendations for android bas
 > **Supports Android 4.4(API Level: 24) and higher devices.**
 > **Current version : 2.2.9*
 
+## Documentation
+
+The full documentation (installation, events, recommendations, search, push notifications and troubleshooting) is at [android-docs.segmentify.com](https://android-docs.segmentify.com/). Its source is in the [`docs/`](docs/) folder of this repository.
+
 ## Installation
 
 You can install Segmentify Android SDK to your application by using  [Maven](https://mvnrepository.com/artifact/com.segmentify.sdk/android).

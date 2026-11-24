@@ -1,0 +1,12 @@
+---
+// Renders the starlight-theme-black page title, then the "Copy for LLMs" bar.
+// Starlight logs that a PageTitle override already exists; that is expected,
+// because this override renders the theme's PageTitle itself.
+import ThemePageTitle from 'starlight-theme-black/overrides/PageTitle.astro';
+import CopyForLLMs from './CopyForLLMs.astro';
+
+const { template } = Astro.locals.starlightRoute.entry.data;
+---
+
+<ThemePageTitle {...Astro.props} />
+{template !== 'splash' && <CopyForLLMs />}
