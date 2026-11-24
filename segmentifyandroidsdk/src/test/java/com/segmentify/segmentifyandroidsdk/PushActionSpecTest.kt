@@ -50,6 +50,45 @@ class PushActionSpecTest {
     }
 
     @Test
+    fun buttonWithoutDeeplinkOpensTheTrackedActionUrl() {
+        val payload = SegmentifyPushPayload.from(
+            mapOf(
+                "instanceId" to "ins-1",
+                "sgmVersion" to "2",
+                "actions" to """[{"action":"view","title":"View","redirectUrl":"https://shop.example.com/view","deeplink":"app://view"},""" +
+                    """{"action":"shop","title":"Shop Now","redirectUrl":"https://shop.example.com/shop"}]""",
+                "actionUrls" to """["https://shop.example.com/view?_sgm_campaign=ins-1","https://shop.example.com/shop?_sgm_campaign=ins-1"]"""
+            )
+        )
+
+        assertEquals(
+            listOf(
+                PushActionSpec("action0", "View", "app://view"),
+                PushActionSpec("action1", "Shop Now", "https://shop.example.com/shop?_sgm_campaign=ins-1")
+            ),
+            PushActionSpec.from(payload)
+        )
+    }
+
+    @Test
+    fun trackedActionUrlFollowsTheOriginalActionIndexWhenAnEarlierActionIsSkipped() {
+        val payload = SegmentifyPushPayload.from(
+            mapOf(
+                "instanceId" to "ins-1",
+                "sgmVersion" to "2",
+                "actions" to """[{"action":"a","redirectUrl":"https://shop.example.com/untitled"},""" +
+                    """{"action":"b","title":"Shop Now","redirectUrl":"https://shop.example.com/shop"}]""",
+                "actionUrls" to """["https://shop.example.com/untitled?_sgm_campaign=ins-1","https://shop.example.com/shop?_sgm_campaign=ins-1"]"""
+            )
+        )
+
+        assertEquals(
+            listOf(PushActionSpec("action0", "Shop Now", "https://shop.example.com/shop?_sgm_campaign=ins-1")),
+            PushActionSpec.from(payload)
+        )
+    }
+
+    @Test
     fun aPushWithoutActionsHasNoButtons() {
         assertTrue(PushActionSpec.from(SegmentifyPushPayload.from(mapOf("instanceId" to "ins-1"))).isEmpty())
         assertTrue(PushActionSpec.from(payloadWithActions("not-json")).isEmpty())
