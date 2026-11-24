@@ -15,8 +15,8 @@ data class PushActionSpec(
 
         @JvmStatic
         fun from(payload: SegmentifyPushPayload): List<PushActionSpec> =
-            payload.actions.mapNotNull { action ->
-                val target = action.deeplink ?: action.redirectUrl
+            payload.actions.mapIndexedNotNull { index, action ->
+                val target = action.deeplink ?: payload.actionUrls.getOrNull(index) ?: action.redirectUrl
                 if (action.title.isBlank() || target == null) null else action.title to target
             }.take(MAX_ACTIONS).mapIndexed { index, (title, target) ->
                 PushActionSpec(ACTION_ID_PREFIX + index, title, target)
