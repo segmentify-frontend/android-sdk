@@ -6,6 +6,8 @@ import com.segmentify.segmentifyandroidsdk.model.SegmentifyPushPayload
 
 object PushInteraction {
 
+    private const val ACTION_ID_PARAM = "actionId"
+
     fun resolveInteractionId(instanceId: String, interactionId: String?): String {
         if (interactionId.isNullOrBlank()) return instanceId
         return interactionId
@@ -14,6 +16,16 @@ object PushInteraction {
     fun registrationSdkVersion(type: NotificationType?): String? {
         if (type != NotificationType.PERMISSION_INFO) return null
         return BuildConfig.SDK_VERSION
+    }
+
+    fun registrationSupportsActions(type: NotificationType?, pushActionsEnabled: Boolean): Boolean? {
+        if (type != NotificationType.PERMISSION_INFO || !pushActionsEnabled) return null
+        return true
+    }
+
+    fun onPushActionClicked(payload: SegmentifyPushPayload, actionId: String, send: (NotificationType, String, Map<String, String>) -> Unit) {
+        val instanceId = payload.instanceId ?: return
+        send(NotificationType.CLICK, instanceId, mapOf(ACTION_ID_PARAM to actionId))
     }
 
     fun onPushReceived(payload: SegmentifyPushPayload, send: (NotificationType, String) -> Unit) {
