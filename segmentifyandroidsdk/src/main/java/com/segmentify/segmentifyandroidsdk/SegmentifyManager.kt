@@ -13,6 +13,7 @@ import com.segmentify.segmentifyandroidsdk.utils.CdpUserProfileStore
 import com.segmentify.segmentifyandroidsdk.utils.ClientPreferences
 import com.segmentify.segmentifyandroidsdk.utils.Constant
 import com.segmentify.segmentifyandroidsdk.utils.PushInteraction
+import com.segmentify.segmentifyandroidsdk.utils.PushNotificationRenderer
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyCallback
 import com.segmentify.segmentifyandroidsdk.utils.SegmentifyLogger
 import com.segmentify.segmentifyandroidsdk.utils.WishlistValidation
@@ -25,6 +26,7 @@ object SegmentifyManager {
     var configModel = ConfigModel()
     var segmentifyObject = SegmentifyObject()
     var clickedBanners: LinkedList<ClickedBannerObject> = LinkedList()
+    private var pushActionsChannelId: String? = null
 
     private fun addClickedBanner(banner: BannerOperationsModel) {
 
@@ -877,7 +879,21 @@ object SegmentifyManager {
             }
         }
         notificationModel.sdkVersion = PushInteraction.registrationSdkVersion(notificationModel.type)
+        notificationModel.supportsActions = PushInteraction.registrationSupportsActions(notificationModel.type, pushActionsChannelId != null)
         PushController.sendNotification(notificationModel)
+    }
+
+    fun enablePushActions(channelId: String) {
+        pushActionsChannelId = channelId
+    }
+
+    fun showNotification(context: Context, data: Map<String, String>, smallIcon: Int): Boolean {
+        val channelId = pushActionsChannelId
+        if (channelId == null) {
+            SegmentifyLogger.printErrorLog("You must call enablePushActions before showing a push notification")
+            return false
+        }
+        return PushNotificationRenderer.show(context, data, channelId, smallIcon)
     }
 
     fun handlePushReceived(payload: SegmentifyPushPayload) {
@@ -888,10 +904,22 @@ object SegmentifyManager {
         PushInteraction.onPushClicked(payload, ::sendPushInteraction)
     }
 
+    fun handlePushActionClicked(payload: SegmentifyPushPayload, actionId: String) {
+        PushInteraction.onPushActionClicked(payload, actionId, ::sendPushActionInteraction)
+    }
+
     private fun sendPushInteraction(type: NotificationType, instanceId: String) {
         val notificationModel = NotificationModel()
         notificationModel.type = type
         notificationModel.instanceId = instanceId
+        sendNotificationInteraction(notificationModel)
+    }
+
+    private fun sendPushActionInteraction(type: NotificationType, instanceId: String, params: Map<String, String>) {
+        val notificationModel = NotificationModel()
+        notificationModel.type = type
+        notificationModel.instanceId = instanceId
+        notificationModel.params = params
         sendNotificationInteraction(notificationModel)
     }
 
